@@ -35,6 +35,9 @@ type App struct {
 	maildirRuns      uint64
 	externalIMAP     externalIMAPClientFactory
 	messageSearchFTS bool
+
+	telegramComposeMu sync.Mutex
+	telegramCompose   map[int64]*telegramComposeSession
 }
 
 func New(cfg Config, logger *slog.Logger) (*App, error) {
@@ -56,7 +59,7 @@ func New(cfg Config, logger *slog.Logger) (*App, error) {
 		return nil, err
 	}
 
-	a := &App{cfg: cfg, db: db, log: logger, now: time.Now, policy: NewHTMLPolicy(), maildirHealth: newMaildirSyncHealthTracker()}
+	a := &App{cfg: cfg, db: db, log: logger, now: time.Now, policy: NewHTMLPolicy(), maildirHealth: newMaildirSyncHealthTracker(), telegramCompose: make(map[int64]*telegramComposeSession)}
 	a.externalIMAP = a
 	if cfg.DBDriver == databaseDriverSQLite {
 		if err := a.configureSQLite(context.Background()); err != nil {

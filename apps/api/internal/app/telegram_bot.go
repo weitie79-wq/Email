@@ -59,6 +59,7 @@ func (a *App) telegramBotWorker(ctx context.Context) {
 			}
 		}
 		offset = maxUpdateID
+		a.telegramComposeCleanup(2 * time.Hour)
 	}
 }
 
@@ -123,6 +124,9 @@ func (a *App) telegramHandleMessage(ctx context.Context, msg *telegramMsg) error
 	if text == "" {
 		return nil
 	}
+	if !strings.HasPrefix(text, "/") {
+		return a.telegramHandleComposeInput(ctx, chatID, text)
+	}
 	return a.telegramDispatchCommand(ctx, userID, chatID, text)
 }
 
@@ -175,18 +179,46 @@ func (a *App) telegramDispatchCommand(ctx context.Context, userID, chatID int64,
 
 // telegramDispatchCallback 分发 callback query。
 func (a *App) telegramDispatchCallback(ctx context.Context, userID, chatID int64, data, callbackQueryID string) error {
-	if strings.TrimSpace(data) == "" {
-		return a.telegramSendMessage(ctx, chatID, "callback_data 为空")
+	defer a.telegramAnswerCallbackQuery(callbackQueryID, "")
+	parts := strings.SplitN(data, ":", 2)
+	action := parts[0]
+	payload := ""
+	if len(parts) == 2 {
+		payload = parts[1]
 	}
-	return a.telegramSendMessage(ctx, chatID, "收到回调: "+data)
+	switch action {
+	case "read":
+		if payload != "" {
+			return a.handleRead(ctx, userID, chatID, []string{payload})
+		}
+	case "reply":
+		if payload != "" {
+			return a.handleReply(ctx, userID, chatID, []string{payload})
+		}
+	case "open":
+		return a.handleOpen(ctx, userID, chatID, []string{payload})
+	case "compose":
+		return a.handleComposeCallback(ctx, chatID, payload)
+	default:
+		return a.telegramSendMessage(ctx, chatID, "收到回调: "+data)
+	}
+	return nil
 }
 
 // telegramSendMessage 发送文本消息。
 func (a *App) telegramSendMessage(ctx context.Context, chatID int64, text string) error {
+	return a.telegramSendMessageKeyboard(ctx, chatID, text, nil)
+}
+
+// telegramSendMessageKeyboard 发送文本消息（可选 inline keyboard）。
+func (a *App) telegramSendMessageKeyboard(ctx context.Context, chatID int64, text string, keyboard *TelegramInlineKeyboard) error {
 	payload := map[string]interface{}{
-		"chat_id": chatID,
-		"text":    text,
+		"chat_id":    chatID,
+		"text":       text,
 		"parse_mode": "HTML",
+	}
+	if keyboard != nil && len(keyboard.InlineKeyboard) > 0 {
+		payload["reply_markup"] = keyboard
 	}
 	_, err := a.telegramCall(ctx, "sendMessage", payload)
 	return err

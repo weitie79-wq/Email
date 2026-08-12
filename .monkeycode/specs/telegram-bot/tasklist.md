@@ -9,14 +9,14 @@
 
 ## 阶段 2：Bot 核心
 
-- [ ] 2.1 实现 `telegram_bot.go`：标准库长轮询 worker、Telegram API 客户端（sendMessage、sendPhoto、editMessageText、answerCallbackQuery）、offset 管理
-- [ ] 2.2 实现 `telegram_commands.go`：命令路由与 `/start`、`/status`、`/open`
-- [ ] 2.3 实现绑定流程：`/bind` 生成绑定码、`/unbind` 解绑、绑定码校验
+- [x] 2.1 实现 `telegram_bot.go`：标准库长轮询 worker、Telegram API 客户端（sendMessage、sendPhoto、editMessageText、answerCallbackQuery）、offset 管理
+- [x] 2.2 实现 `telegram_commands.go`：命令路由与 `/start`、`/status`、`/open`
+- [x] 2.3 实现绑定流程：`/bind` 生成绑定码、`/unbind` 解绑、绑定码校验
 
 ## 阶段 3：交互邮件
 
-- [ ] 3.1 实现 `/inbox` 与 `/read <id>` 命令（inline keyboard）
-- [ ] 3.2 实现 `/send` 与 `/reply` 会话状态机，复用 `sendMailWithSource`
+- [x] 3.1 实现 `/inbox` 与 `/read <id>` 命令（inline keyboard）
+- [x] 3.2 实现 `/send` 与 `/reply` 会话状态机，复用 `sendMailWithSource`
 
 ## 阶段 4：通知与告警
 

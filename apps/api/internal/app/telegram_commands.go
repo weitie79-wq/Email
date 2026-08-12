@@ -297,6 +297,7 @@ func (a *App) handleInbox(ctx context.Context, userID, chatID int64, args []stri
 	defer rows.Close()
 	var b strings.Builder
 	b.WriteString("最近 5 封收件箱邮件：\n\n")
+	kb := &TelegramInlineKeyboard{}
 	count := 0
 	for rows.Next() {
 		var id, subject, fromName, fromAddr, receivedAt string
@@ -304,10 +305,19 @@ func (a *App) handleInbox(ctx context.Context, userID, chatID int64, args []stri
 			return err
 		}
 		count++
-		b.WriteString(fmt.Sprintf("%d. %s\n   %s\n   %s\n\n", count, subject, fromAddr, receivedAt))
+		if fromName == "" {
+			fromName = fromAddr
+		}
+		b.WriteString(fmt.Sprintf("%d. %s\n   %s\n   %s\n\n", count, subject, fromName, receivedAt))
+		kb.InlineKeyboard = append(kb.InlineKeyboard, []TelegramInlineKeyboardButton{
+			{Text: fmt.Sprintf("%d. 查看", count), CallbackData: "read:" + id},
+		})
 	}
 	if count == 0 {
 		return a.telegramSendMessage(ctx, chatID, "收件箱暂无邮件。")
+	}
+	if len(kb.InlineKeyboard) > 0 {
+		return a.telegramSendMessageKeyboard(ctx, chatID, b.String(), kb)
 	}
 	return a.telegramSendMessage(ctx, chatID, b.String())
 }
@@ -344,30 +354,15 @@ func (a *App) handleRead(ctx context.Context, userID, chatID int64, args []strin
 		fromAddr = fromName + " <" + fromAddr + ">"
 	}
 	text := fmt.Sprintf("发件人: %s\n主题: %s\n时间: %s\n\n摘要:\n%s", fromAddr, subject, receivedAt, snippet)
-	return a.telegramSendMessage(ctx, chatID, text)
-}
-
-// handleSend 响应 /send 命令，启动发信会话状态机。
-func (a *App) handleSend(ctx context.Context, userID, chatID int64, args []string) error {
-	storedUserID, err := a.telegramLookupBoundUser(ctx, chatID)
-	if err != nil {
-		return a.telegramSendMessage(ctx, chatID, err.Error())
+	kb := &TelegramInlineKeyboard{
+		InlineKeyboard: [][]TelegramInlineKeyboardButton{
+			{
+				{Text: "回复", CallbackData: "reply:" + messageID},
+				{Text: "打开 Mini App", CallbackData: "open:" + messageID},
+			},
+		},
 	}
-	_ = storedUserID
-	return a.telegramSendMessage(ctx, chatID, "发信会话尚未实现，请通过 Web 界面发送邮件。")
-}
-
-// handleReply 响应 /reply <messageId>。
-func (a *App) handleReply(ctx context.Context, userID, chatID int64, args []string) error {
-	if len(args) == 0 {
-		return a.telegramSendMessage(ctx, chatID, "用法：/reply <messageId>")
-	}
-	storedUserID, err := a.telegramLookupBoundUser(ctx, chatID)
-	if err != nil {
-		return a.telegramSendMessage(ctx, chatID, err.Error())
-	}
-	_ = storedUserID
-	return a.telegramSendMessage(ctx, chatID, "回复会话尚未实现，请通过 Web 界面回复邮件。")
+	return a.telegramSendMessageKeyboard(ctx, chatID, text, kb)
 }
 
 // handleOpen 响应 /open 命令，返回 Mini App URL。
