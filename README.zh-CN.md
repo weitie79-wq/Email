@@ -10,7 +10,6 @@
 > 前端：React + TypeScript + shadcn/ui
 > 后端：Go + SQLite
 > 部署：Docker（单容器 all-in-one / 多容器 stack）
-> 社区：Telegram [群](https://t.me/+EhII7MSyi3QwNDQ5)
 
 ## 功能特性
 
@@ -111,6 +110,19 @@ pnpm run dev
 | Webmail | http://localhost:5173 |
 | API | http://localhost:8080 |
 | 管理后台 | http://localhost:5173/admin |
+
+### 快速启动命令
+
+```bash
+# 只启动后端
+cd apps/api && source ../deploy/.env && go run ./cmd/server
+
+# 只启动前端
+cd apps/web && pnpm run dev
+
+# 全部启动
+cd deploy && docker compose up -d
+```
 
 ---
 
