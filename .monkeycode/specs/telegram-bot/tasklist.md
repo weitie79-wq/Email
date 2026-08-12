@@ -40,6 +40,6 @@
 
 ## 阶段 8：测试与验证
 
-- [ ] 8.1 单元测试：命令路由、initData 校验、dedupe 键、退避计算、Markdown 转义
+- [x] 8.1 单元测试：命令路由、initData 校验、dedupe 键、退避计算、Markdown 转义
 - [ ] 8.2 集成测试：通知入队过滤、管理命令权限、发送状态机（mock Telegram API）
-- [ ] 8.3 全量 `go test ./...` 与前端构建验证
+- [x] 8.3 全量 `go test ./...` 与前端构建验证

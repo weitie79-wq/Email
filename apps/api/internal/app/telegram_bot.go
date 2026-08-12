@@ -23,6 +23,28 @@ const (
 	telegramAlertPollInterval  = 60 * time.Second
 )
 
+// telegramHTMLEscape 转义 Telegram HTML parse_mode 中需要转义的字符，
+// 防止邮件内容中的 <>&" 被当作 HTML 标签解析（注入/格式破坏）。
+func telegramHTMLEscape(s string) string {
+	var b strings.Builder
+	b.Grow(len(s) + 32)
+	for _, r := range s {
+		switch r {
+		case '<':
+			b.WriteString("&lt;")
+		case '>':
+			b.WriteString("&gt;")
+		case '&':
+			b.WriteString("&amp;")
+		case '"':
+			b.WriteString("&quot;")
+		default:
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
 // telegramWorker 是 Telegram Bot 长轮询主循环，仅在配置了 token 时启动。
 // 失败时记录日志并继续重试。offset 在成功处理更新后推进。
 func (a *App) telegramBotWorker(ctx context.Context) {

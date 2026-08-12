@@ -49,7 +49,8 @@ func (a *App) processDueTelegramNotify(ctx context.Context) error {
 			continue
 		}
 
-		text := fmt.Sprintf("📬 邮件通知\n\nSubject: %s\nFrom: %s\n%s", subject, fromName, snippet)
+		text := fmt.Sprintf("📬 邮件通知\n\nSubject: %s\nFrom: %s\n%s",
+			telegramHTMLEscape(subject), telegramHTMLEscape(fromName), telegramHTMLEscape(snippet))
 		if err := a.telegramSendMessage(ctx, chatID, text); err != nil {
 			_, _ = a.db.ExecContext(ctx,
 				`UPDATE telegram_notify_outbox SET attempt_count=attempt_count+1, next_attempt_at=? WHERE id=?`,
@@ -94,11 +95,11 @@ func (a *App) processDueTelegramAlerts(ctx context.Context) error {
 		var text string
 		switch alertType {
 		case "smtp_connect":
-			text = fmt.Sprintf("⚠️ SMTP 连接告警\n\n次数: %d\n\n%s", attemptCount, body)
+			text = fmt.Sprintf("⚠️ SMTP 连接告警\n\n次数: %d\n\n%s", attemptCount, telegramHTMLEscape(body))
 		case "db_error":
-			text = fmt.Sprintf("⚠️ 数据库错误告警\n\n次数: %d\n\n%s", attemptCount, body)
+			text = fmt.Sprintf("⚠️ 数据库错误告警\n\n次数: %d\n\n%s", attemptCount, telegramHTMLEscape(body))
 		default:
-			text = fmt.Sprintf("📢 %s\n\n%s", title, body)
+			text = fmt.Sprintf("📢 %s\n\n%s", telegramHTMLEscape(title), telegramHTMLEscape(body))
 		}
 
 		if err := a.telegramSendMessage(ctx, chatID, text); err != nil {
@@ -309,7 +310,7 @@ func (a *App) handleStatus(ctx context.Context, userID, chatID int64, args []str
 	if err != nil {
 		return err
 	}
-	msg := fmt.Sprintf("绑定状态：已绑定\n用户 ID: %s\n绑定时间: %s", storedUserID, createdAt)
+	msg := fmt.Sprintf("绑定状态：已绑定\n用户 ID: %s\n绑定时间: %s", telegramHTMLEscape(storedUserID), telegramHTMLEscape(createdAt))
 	if isAdminTarget == 1 {
 		msg += "\n角色: 管理员"
 	}
@@ -346,7 +347,8 @@ func (a *App) handleInbox(ctx context.Context, userID, chatID int64, args []stri
 		if fromName == "" {
 			fromName = fromAddr
 		}
-		b.WriteString(fmt.Sprintf("%d. %s\n   %s\n   %s\n\n", count, subject, fromName, receivedAt))
+		b.WriteString(fmt.Sprintf("%d. %s\n   %s\n   %s\n\n", count,
+			telegramHTMLEscape(subject), telegramHTMLEscape(fromName), telegramHTMLEscape(receivedAt)))
 		kb.InlineKeyboard = append(kb.InlineKeyboard, []TelegramInlineKeyboardButton{
 			{Text: fmt.Sprintf("%d. 查看", count), CallbackData: "read:" + id},
 		})
@@ -391,7 +393,8 @@ func (a *App) handleRead(ctx context.Context, userID, chatID int64, args []strin
 	if fromName != "" {
 		fromAddr = fromName + " <" + fromAddr + ">"
 	}
-	text := fmt.Sprintf("发件人: %s\n主题: %s\n时间: %s\n\n摘要:\n%s", fromAddr, subject, receivedAt, snippet)
+	text := fmt.Sprintf("发件人: %s\n主题: %s\n时间: %s\n\n摘要:\n%s",
+		telegramHTMLEscape(fromAddr), telegramHTMLEscape(subject), telegramHTMLEscape(receivedAt), telegramHTMLEscape(snippet))
 	kb := &TelegramInlineKeyboard{
 		InlineKeyboard: [][]TelegramInlineKeyboardButton{
 			{
@@ -482,7 +485,7 @@ func (a *App) tgAdminListUsers(ctx context.Context, chatID int64) error {
 		if disabled == 1 {
 			status = "disabled"
 		}
-		b.WriteString(fmt.Sprintf("%d. %s [%s/%s]\n", count, email, role, status))
+		b.WriteString(fmt.Sprintf("%d. %s [%s/%s]\n", count, telegramHTMLEscape(email), telegramHTMLEscape(role), telegramHTMLEscape(status)))
 	}
 	if count == 0 {
 		return a.telegramSendMessage(ctx, chatID, "暂无用户。")
@@ -507,7 +510,7 @@ func (a *App) tgAdminListDomains(ctx context.Context, chatID int64) error {
 			return err
 		}
 		count++
-		b.WriteString(fmt.Sprintf("%d. %s [%s]\n", count, name, status))
+		b.WriteString(fmt.Sprintf("%d. %s [%s]\n", count, telegramHTMLEscape(name), telegramHTMLEscape(status)))
 	}
 	if count == 0 {
 		return a.telegramSendMessage(ctx, chatID, "暂无域名。")
@@ -532,7 +535,7 @@ func (a *App) tgAdminListMailboxes(ctx context.Context, chatID int64) error {
 			return err
 		}
 		count++
-		b.WriteString(fmt.Sprintf("%d. %s [%s] owner=%s\n", count, addr, status, owner))
+		b.WriteString(fmt.Sprintf("%d. %s [%s] owner=%s\n", count, telegramHTMLEscape(addr), telegramHTMLEscape(status), telegramHTMLEscape(owner)))
 	}
 	if count == 0 {
 		return a.telegramSendMessage(ctx, chatID, "暂无邮箱。")
@@ -555,13 +558,13 @@ func (a *App) tgAdminToggleUser(ctx context.Context, chatID int64, email string,
 	}
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("未找到邮箱 %s 的用户。", email))
+		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("未找到邮箱 %s 的用户。", telegramHTMLEscape(email)))
 	}
 	action := "启用"
 	if disable {
 		action = "禁用"
 	}
-	return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("已%s用户 %s。", action, email))
+	return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("已%s用户 %s。", telegramHTMLEscape(action), telegramHTMLEscape(email)))
 }
 
 // telegramLookupBoundUser 通过 chatID 查找已绑定的 user_id。

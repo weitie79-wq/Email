@@ -115,7 +115,7 @@ func (a *App) telegramPromptMailbox(ctx context.Context, chatID int64, userID st
 			sess.step = composeStepTo
 		}
 		a.telegramComposeMu.Unlock()
-		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("发送邮箱: %s\n请输入收件人邮箱（多个用逗号分隔）:", options[0].address))
+		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("发送邮箱: %s\n请输入收件人邮箱（多个用逗号分隔）:", telegramHTMLEscape(options[0].address)))
 	}
 	kb := &TelegramInlineKeyboard{}
 	for i := range options {
@@ -158,9 +158,9 @@ func (a *App) handleComposeCallback(ctx context.Context, chatID int64, payload s
 		sess.step = composeStepTo
 		if sess.replyToMsg != "" {
 			sess.step = composeStepSubject
-			return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("收件人: %s\n主题: %s\n请输入邮件正文:", strings.Join(sess.to, ", "), sess.subject))
-		}
-		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("发送邮箱: %s\n请输入收件人邮箱（多个用逗号分隔）:", address))
+		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("收件人: %s\n主题: %s\n请输入邮件正文:", telegramHTMLEscape(strings.Join(sess.to, ", ")), telegramHTMLEscape(sess.subject)))
+	}
+	return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("发送邮箱: %s\n请输入收件人邮箱（多个用逗号分隔）:", telegramHTMLEscape(address)))
 	case "confirm":
 		if arg == "no" {
 			delete(a.telegramCompose, chatID)
@@ -202,7 +202,7 @@ func (a *App) telegramHandleComposeInput(ctx context.Context, chatID int64, text
 			sess.subject = "(no subject)"
 		}
 		sess.step = composeStepBody
-		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("主题: %s\n请输入邮件正文:", sess.subject))
+		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("主题: %s\n请输入邮件正文:", telegramHTMLEscape(sess.subject)))
 	case composeStepBody:
 		sess.body = strings.TrimSpace(text)
 		sess.step = composeStepConfirm
@@ -214,7 +214,7 @@ func (a *App) telegramHandleComposeInput(ctx context.Context, chatID int64, text
 				},
 			},
 		}
-		preview := fmt.Sprintf("发送邮箱: %s\n收件人: %s\n主题: %s\n正文:\n%s\n\n确认发送？", sess.mailboxAddr, strings.Join(sess.to, ", "), sess.subject, sess.body)
+		preview := fmt.Sprintf("发送邮箱: %s\n收件人: %s\n主题: %s\n正文:\n%s\n\n确认发送？", telegramHTMLEscape(sess.mailboxAddr), strings.Join(sess.to, ", "), telegramHTMLEscape(sess.subject), telegramHTMLEscape(sess.body))
 		return a.telegramSendMessageKeyboard(ctx, chatID, preview, kb)
 	default:
 		return a.telegramSendMessage(ctx, chatID, "当前会话状态无法处理该输入，请取消后重新开始。")
@@ -245,7 +245,7 @@ func (a *App) telegramComposeSend(ctx context.Context, chatID int64, sess *teleg
 	}
 	delete(a.telegramCompose, chatID)
 	if msg != nil {
-		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("邮件已发送。\nMessageID: %s\n主题: %s\n收件人: %s", msg.ID, sess.subject, strings.Join(sess.to, ", ")))
+		return a.telegramSendMessage(ctx, chatID, fmt.Sprintf("邮件已发送。\nMessageID: %s\n主题: %s\n收件人: %s", msg.ID, telegramHTMLEscape(sess.subject), strings.Join(sess.to, ", ")))
 	}
 	return a.telegramSendMessage(ctx, chatID, "邮件已发送。")
 }
