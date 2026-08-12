@@ -1,83 +1,77 @@
 # EOOS Email
 
-[![English](https://img.shields.io/badge/English-README-blue)](./README.md)
-[![简体中文](https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-README-green)](./README.zh-CN.md)
+[English](./README.md)
 
-![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)
-![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker)
-![Postfix](https://img.shields.io/badge/Postfix-5E3C2B?logo=maildotru)
-![Dovecot](https://img.shields.io/badge/Dovecot-4B8BBE)
-![Rspamd](https://img.shields.io/badge/Rspamd-FFD045)
+简体中文版
 
-EOOS Email 是一个自建邮箱 Webmail 全栈方案：前端使用 React + TypeScript + shadcn/ui，后端使用 Go + SQLite，部署时可用单容器集成 API、Web、Nginx、Postfix、Dovecot、Rspamd。
+---
 
-交流群组：[Telegram 群组](https://t.me/+EhII7MSyi3QwNDQ5)
+> EOOS Email 是一个自建邮箱 Webmail 全栈方案。
+> 前端：React + TypeScript + shadcn/ui
+> 后端：Go + SQLite
+> 部署：Docker（单容器 all-in-one / 多容器 stack）
+> 社区：Telegram [群](https://t.me/+EhII7MSyi3QwNDQ5)
 
 ## 功能特性
 
-- **Webmail 客户端**：多邮箱切换、文件夹、邮件读写、草稿、定时发送、附件、搜索、标签、星标、移动/删除、已读/未读。
-- **邮箱增强**：联系人、签名、收件规则、发件人黑名单、邮件统计、归档已读、清空回收站/垃圾邮件。
-- **多域名/多邮箱**：域名管理、DKIM 密钥生成、DNS 记录展示与检测、邮箱账号、别名转发、无人收件开关。
-- **账号与权限**：登录/注册、会话管理、TOTP 两步验证、Cloudflare Turnstile、用户自助申请邮箱、权限组/RBAC。
-- **管理员面板**：概览清单、用户/权限组/域名/邮箱/别名/全部邮件管理、系统设置、邮件模板、SMTP 测试。
-- **邮件服务栈**：Postfix 投递、Dovecot IMAP/POP3、Rspamd 反垃圾与 DKIM 签名、Maildir 到 SQLite 同步。
-- **部署友好**：默认 all-in-one 单容器，也提供多容器 stack 方便调试 Postfix/Dovecot/Rspamd。
+- **Webmail 客户端**：多邮箱切换、文件夹、读写草稿、定时发送、附件、搜索、标签、星标、移动/删除、已读/未读
+- **邮箱增强**：联系人、签名、收件规则、发件人黑名单、邮件统计、归档已读、清空回收站/垃圾邮件
+- **多域名/多邮箱**：域名管理、DKIM 密钥生成、DNS 记录展示与检测、邮箱账号、别名转发、无人收件开关
+- **账号与权限**：登录/注册、会话管理、TOTP 两步验证、Cloudflare Turnstile、用户自助申请邮箱、权限组/RBAC
+- **管理员面板**：概览清单、用户/权限组/域名/邮箱/别名/全部邮件管理、系统设置、邮件模板、SMTP 测试
+- **邮件服务栈**：Postfix 投递、Dovecot IMAP/POP3、Rspamd 反垃圾与 DKIM 签名、Maildir 到 SQLite 同步
+- **部署友好**：默认 all-in-one 单容器，也提供多容器 stack 方便调试 Postfix/Dovecot/Rspamd
 
-## 界面预览
+## Telegram Bot 集成
 
-| Webmail 邮件阅读与列表 | 写邮件 · 富文本编辑工具栏 |
-| --- | --- |
-| ![Webmail 邮件阅读与列表](./docs/screenshots/mail-preview.png) | ![写邮件富文本编辑工具栏](./docs/screenshots/compose-preview.png) |
-| 多邮箱切换、文件夹、搜索、标签、星标与邮件阅读面板。 | 富文本工具栏支持字体、标题、加粗、斜体、下划线、颜色、高亮、列表、对齐、引用、代码块、附件、表情与定时发送。 |
-| 管理后台 · 系统概览 | 第三方客户端配置 |
-| ![管理后台系统概览](./docs/screenshots/admin-preview.png) | ![第三方客户端配置](./docs/screenshots/client-preview.png) |
-| 管理用户、权限组、域名、邮箱、别名、系统设置与发送审计。 | 一键查看 IMAP / POP3 / SMTP 服务器、端口、安全方式与账号信息。 |
+为 EOOS Email 集成 Telegram Bot 支持，提供：
 
-## 目录结构
+- 新邮件推送通知
+- 交互式邮件收发（/inbox /read /send /reply）
+- 管理员操作（/admin users /admin domains /admin mailboxes）
+- 服务告警监控
 
-```text
-.
-├── apps/api              # Go API、SQLite schema、邮件同步与业务逻辑
-├── apps/web              # React/Vite Webmail 与管理后台
-├── deploy                # Docker Compose、镜像构建、Postfix/Dovecot/Rspamd 配置
-└── .github/workflows     # Docker 镜像发布流水线
+### 配置步骤
+
+1. 创建 `.env` 文件：
+
+```bash
+cp deploy/.env.example deploy/.env
 ```
 
-## 环境要求
+2. 编辑 `deploy/.env`：
 
-### 开发环境
+```bash
+EOOS_TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+EOOS_PUBLIC_BASE_URL=https://your-domain.com
+```
 
-- Go 1.25+
-- Node.js 20+
-- pnpm 10.28.2（可通过 corepack 启用）
+3. 启动后端：
 
-### 部署环境
+```bash
+cd apps/api
+source .env
+go run ./cmd/server
+```
 
-- Docker Engine
-- Docker Compose v2
-- 可解析的邮件域名，以及可用的 25 / 465 / 587 / 993 / 995 等端口
+4. 在 Telegram 中添加 Bot → `/setmenubutton` → 选择 `Use it to create a custom menu` → 填入 API URL
 
-> 公网收发邮件还需要正确配置 MX、SPF、DKIM、DMARC，并确认云厂商未封禁 SMTP 端口。
+#### 页面使用
+
+打开 Telegram → 点击 Bot 菜单 → 选择「打开客户端」→ Mini App 加载完成，跳转至邮件列表。
 
 ## 快速开始
 
 ### 本地开发
 
-后端：
-
 ```bash
+# 后端
 cd apps/api
 go mod download
 go test ./...
 go run ./cmd/server
-```
 
-前端（新终端）：
-
-```bash
+# 前端
 cd apps/web
 corepack enable
 corepack prepare pnpm@10.28.2 --activate
@@ -92,180 +86,76 @@ pnpm run dev
 
 默认管理员邮箱为 `admin@eoos.local`。建议开发时显式设置 `EOOS_ADMIN_PASSWORD`；如果未设置，后端首次启动会随机生成密码并输出到日志。
 
-### Docker 部署（单容器）
+### Docker 部署
 
 服务器只需要 `deploy/` 下的 Compose 文件和配置，不需要源码构建：
 
 ```bash
 cd deploy
 cp .env.example .env
-# 修改 .env：域名、访问地址、管理员邮箱、管理员密码等
+# 编辑 .env: 域名、Public URL、管理员邮箱、密码等
 docker compose pull
 docker compose up -d
 ```
 
-常用命令：
+常见命令：
 
 ```bash
 # 查看日志
 docker compose logs -f eoos-email
 
-# 更新镜像并重启
+# 重建镜像
 docker compose pull
-docker compose up -d
-
-# 停止服务
-docker compose down
+docker compose up -d --build
 ```
 
-如需在完整源码仓库中本地构建镜像：
+## 部署清单
 
-```bash
-cd deploy
-cp .env.example .env
-docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
-```
-
-更多部署细节见 [`deploy/README.md`](./deploy/README.md)。
-
-## 首次部署清单
-
-1. 编辑 `deploy/.env`：至少修改 `EOOS_PUBLIC_HOSTNAME`、`EOOS_PUBLIC_BASE_URL`、`EOOS_ADMIN_EMAIL`、`EOOS_ADMIN_PASSWORD`。
-2. 生产环境建议挂载真实 TLS 证书，并设置 `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`。
-3. 登录管理后台，添加邮件域名。
-4. 在域名管理中复制并配置 MX、SPF、DKIM、DMARC 记录，然后点击 DNS 检测。
-5. 创建邮箱账号、别名转发或权限组，按需开启注册、2FA、Turnstile、自助申请邮箱。
-6. 使用后台 SMTP 测试与 Webmail 收发测试确认链路正常。
+| 组件 | 镜像 | 端口 |
+|------|------|------|
+| All-in-one | `ghcr.io/eoos996/eoos-email:latest` | 80, 443, 25, 465, 587, 993, 995 |
+| API | `ghcr.io/eoos996/eoos-email-api:latest` | 8080 |
+| Web | `ghcr.io/eoos996/eoos-email-web:latest` | 5173 |
+| Postfix | `ghcr.io/eoos996/eoos-email-postfix:latest` | 25 |
+| Dovecot | `ghcr.io/eoos996/eoos-email-dovecot:latest` | 993, 995 |
+| Rspamd | `ghcr.io/eoos996/eoos-email-rspamd:latest` | 11332 |
 
 ## 关键环境变量
 
-完整配置见 [`deploy/.env.example`](./deploy/.env.example)。常用变量如下：
+见 [`deploy/.env.example`](./deploy/.env.example) 获取完整配置。
 
-| 变量 | 说明 | 默认/示例 |
-|------|------|-----------|
-| `EOOS_IMAGE` | all-in-one 镜像 | `ghcr.io/eoos996/eoos-email:latest` |
-| `EOOS_PUBLIC_HOSTNAME` | 邮件服务器主机名，影响 Postfix/DNS 展示/链接 | `mail.example.com` |
-| `EOOS_PUBLIC_BASE_URL` | Webmail 对外访问地址 | `https://mail.example.com` |
-| `EOOS_ADMIN_EMAIL` | 初始管理员邮箱 | `admin@example.com` |
-| `EOOS_ADMIN_PASSWORD` | 初始管理员密码，生产必须修改 | `ChangeMe123!` |
-| `EOOS_DB_PATH` | SQLite 数据库路径 | `/data/eoos.db` |
-| `EOOS_ALLOW_INSECURE_HTTP` | 是否允许非 HTTPS Cookie，本地调试可开 | `false` |
-| `EOOS_OPEN_REGISTRATION` | 是否开放注册 | `false` |
-| `EOOS_TWO_FACTOR_ENABLED` | 2FA 功能总开关 | `false` |
-| `EOOS_TURNSTILE_ENABLED` | 是否启用 Turnstile | `false` |
-| `EOOS_SMTP_HOST` / `EOOS_SMTP_PORT` | Webmail 发信 SMTP | `127.0.0.1` / `25` |
-| `EOOS_MAILDIR_ROOT` | Maildir 根目录 | `/var/mail/vhosts` |
-| `EOOS_CATCH_ALL_ENABLED` | 未注册收件地址是否进入全部邮件 | `false` |
-| `EOOS_USER_MAILBOX_APPLY_ENABLED` | 是否允许用户自助申请邮箱 | `false` |
-| `EOOS_EXTERNAL_IMAP_ENABLED` | 是否启用外部 IMAP 接入；也可在后台“系统设置 > 外部 IMAP”配置 | `false` |
-| `EOOS_EXTERNAL_IMAP_SECRET_KEY` | 外部 IMAP 密码加密密钥，启用接入前必须设置；也可在后台配置 | 随机长字符串 |
-| `EOOS_EXTERNAL_IMAP_SYNC_SECONDS` | 外部 IMAP 本地存储模式同步间隔；也可在后台配置 | `300` |
-| `EOOS_EXTERNAL_IMAP_ALLOW_PRIVATE_HOSTS` | 是否允许外部 IMAP 连接内网/localhost 主机；也可在后台配置 | `false` |
-| `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_SECRET` | Gmail 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/gmail/callback` | 空 |
-| `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_SECRET` | Microsoft 365 / Outlook 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/outlook/callback` | 空 |
+### Telegram Bot
 
-## 架构
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `EOOS_TELEGRAM_BOT_TOKEN` | 从 @BotFather 获取的 Bot Token | 空 |
+| `EOOS_TELEGRAM_BOT_TIMEOUT_SECONDS` | 长轮询超时 | 60 |
+| `EOOS_TELEGRAM_ADMIN_CHAT_IDS` | 告警接收 Chat ID，逗号分隔 | 空 |
+| `EOOS_TELEGRAM_NOTIFY_ENABLED` | 全局通知开关 | true |
+| `EOOS_TELEGRAM_ALERT_QUEUE_THRESHOLD` | 积压告警阈值 | 200 |
+| `EOOS_PUBLIC_BASE_URL` | Mini App 入口域名 | `http://localhost:5173` |
 
-```text
-┌────────────────────────────────────────────────────────────┐
-│                    eoos-email 单容器                     │
-│                                                            │
-│  ┌─────────┐       ┌────────────┐       ┌──────────────┐   │
-│  │  Nginx  │ ───▶  │ Go API     │ ───▶  │ SQLite /data │   │
-│  │ Web 静态│       │ Webmail API│       └──────┬───────┘   │
-│  └─────────┘       └─────┬──────┘              │           │
-│                          │ Maildir sync        │ maps      │
-│  ┌─────────┐       ┌─────▼──────┐       ┌──────▼───────┐   │
-│  │ Rspamd  │ ◀───▶ │ Postfix    │ ───▶  │ Dovecot/LMTP │   │
-│  │ DKIM/AS │       │ SMTP/MTA   │       │ IMAP/POP3    │   │
-│  └─────────┘       └────────────┘       └──────────────┘   │
-└────────────────────────────────────────────────────────────┘
-```
+## 快速开始清单
 
-邮件流转：
+1. **编辑 `.env`**：设置 `EOOS_PUBLIC_HOSTNAME`、`EOOS_PUBLIC_BASE_URL`、`EOOS_ADMIN_EMAIL`、`EOOS_ADMIN_PASSWORD`
+2. **启动后端**：`cd apps/api && source .env && go run ./cmd/server`
+3. **启动 Web**：`cd apps/web && corepack enable && pnpm install && pnpm run dev`
+4. **查看 Web**：`http://localhost:5173`
+5. **管理员面板**：登录后添加邮件域名，完成 MX/SPF/DKIM/DMARC 记录
 
-1. **收件**：Postfix 接收邮件 → Rspamd 评分/标记 → Dovecot 写入 Maildir → API worker 同步到 SQLite → Webmail 展示。
-2. **发件**：Webmail 调用 API → API 构造 MIME → SMTP 提交给 Postfix 或外部 SMTP → 投递到目标地址。
-3. **本地投递**：开发环境中，系统内邮箱互发可直接写入对方 Inbox；未配置 `EOOS_SMTP_HOST` 时不会真正投递外部收件人。
-4. **第三方客户端**：可通过 SMTP 465/587、IMAP 993、POP3 995 连接；生产环境请配置匹配 `EOOS_PUBLIC_HOSTNAME` 的证书。
-5. **外部邮箱接入**：个人邮箱管理可添加外部 IMAP 账号。本地存储模式会同步入库；远端直连模式每次读取远端，不写入本地邮件表。
+## Troubleshooting
 
-## 开放 API
+- `401 Unauthorized`：Telegram Bot Token 无效。生成 Token：`@BotFather → /newbot → 设置 Bot Token`
+- `503 Service Unavailable`：Telegram Bot 未配置。添加 `EOOS_TELEGRAM_BOT_TOKEN` 环境变量。
+- `404 page not found`：端口未开放。检查防火墙或 Nginx 配置。
+- `maildir sync` 慢：检查 `EOOS_MAILDIR_SCAN_SECONDS`，建议 30 秒。
+- 后端日志：`docker compose logs -f eoos-email`（单容器）或 `docker compose logs -f eoos-email-api`（多容器）。
 
-外部系统应使用版本化的 `/api/open/v1` 接口和带 scope 的 API Token。详细说明见 [API 文档](docs/API.md)，机器可读契约见 [OpenAPI 3.1](docs/openapi.json)。发信支持幂等键；最终投递事件可通过签名入口写入，全部状态变化也可通过可靠的签名 webhook outbox 主动推送。
+## 参考
 
-## 开发与验证
-
-```bash
-# API 测试
-cd apps/api
-go test ./...
-
-# Web 检查与构建
-cd apps/web
-pnpm run check
-
-# 单容器源码构建验证
-cd deploy
-docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
-```
-
-## 生产注意事项
-
-- 生产环境必须修改默认管理员密码，并妥善保管 `.env`、SQLite 数据库、Maildir 与 DKIM 私钥。
-- Web 可放在宿主机 Nginx/宝塔/边缘网关后，但 SMTP/IMAP/POP3 证书需要单独挂载给容器内 Postfix/Dovecot。
-- 云厂商常默认封禁 25 端口；无法收发公网邮件时先检查端口、安全组、防火墙与反向 DNS。
-- SQLite 适合单机部署；多节点部署前需要迁移数据库，并同步调整 Postfix/Dovecot 查询配置。
-
-## SMTP 提交
-
-- 第三方客户端的 SMTP 提交 `465/587` 由 EOOS API 进程处理。
-- 启用 SMTP 提交前必须配置 `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`；API 不会用 localhost 自签证书对外提供 465/587。
-- Postfix 只保留 `25` 端口，用于公网入站邮件和内部/外部 relay。
-- Webmail/API 和第三方客户端发信都会先写入 Sent，再进入发送队列。
-- 发送队列由 EOOS API 后台 worker relay 到 `EOOS_SMTP_HOST:EOOS_SMTP_PORT`，失败会记录审计并按退避策略重试。
-- v1 支持本人邮箱发信；如需 send-as，可使用启用的别名转发 source 指向本人邮箱，或在数据库中配置 `send_as_grants`。
-- 如果客户端随后又通过 IMAP APPEND 写入自己的 Sent 副本，Maildir 同步会按 Sent 文件夹内的 `Message-ID` 去重。
-
-## 数据库支持
-
-API 现支持 SQLite、MySQL 8.4 和 PostgreSQL 16，SQLite 仍是默认数据库。MySQL/PostgreSQL 必须使用新的空数据库启动，系统不会自动迁移现有 SQLite 数据。
-
-外部数据库配置：
-
-- `EOOS_DB_DRIVER=mysql` 或 `EOOS_DB_DRIVER=postgres`
-- `EOOS_DATABASE_URL`：MySQL DSN 或 PostgreSQL URL
-- 可通过 `EOOS_DB_MAX_OPEN_CONNS`、`EOOS_DB_MAX_IDLE_CONNS` 等变量调整连接池
-
-一体化部署支持 SQLite、MySQL 8.4 和 PostgreSQL 16。SQLite 仍是默认数据库；选择 MySQL/PostgreSQL 时，在基础 `docker-compose.yml` 上叠加对应文件即可。现有 SQLite 数据不会自动迁移，跨库导入应使用单独的数据迁移工具。
-
-```bash
-# SQLite（默认）
-docker compose --env-file deploy/.env -f deploy/docker-compose.yml up -d
-
-# MySQL 8.4
-docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.mysql.yml up -d
-
-# PostgreSQL 16
-docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.postgres.yml up -d
-```
-
-两种外部数据库模式仍只运行一个 `eoos-email` 主容器，仅额外增加一个数据库容器。具体必填变量见 `deploy/.env.example`。
-
-## License
-
-[MIT](./LICENSE)
-
-
-## Star 趋势
-
-<a href="https://www.star-history.com/?repos=EOOS996%2FEOOS-Email&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
- </picture>
-</a>
-
-友情链接：[LINUX DO](https://linux.do/) —— 新的理想型社区
-
+- [Telegram Mini App 入口设计](./.monkeycode/specs/telegram-bot/design.md)
+- [Telegram Bot 需求文档](./.monkeycode/specs/telegram-bot/requirements.md)
+- [API 文档](./docs/API.md)
+- [Postfix 配置](./deploy/postfix/)
+- [Dovecot 配置](./deploy/dovecot/)
+- [Rspamd 配置](./deploy/rspamd/)
