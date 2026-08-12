@@ -137,6 +137,9 @@ func (a *App) enqueueTelegramNotify(ctx context.Context, mailboxID, userID, fold
 	if err != nil && err != sql.ErrNoRows {
 		return nil
 	}
+	if notifyEnabled == 0 {
+		return nil
+	}
 	// 查 chat_id
 	var chatID int64
 	err = a.db.QueryRowContext(ctx, `SELECT chat_id FROM telegram_bindings WHERE user_id=?`, userID).Scan(&chatID)
@@ -157,6 +160,41 @@ func (a *App) enqueueTelegramNotify(ctx context.Context, mailboxID, userID, fold
 		meta.Subject, meta.FromAddr, meta.FromName, meta.Snippet, dedupeKey,
 		0, 5, now, "", now)
 	return err
+}
+
+// enqueueTelegramNotifyForMessage 为已落库的新邮件查询元数据并入队通知。
+// 仅当消息位于 Inbox（或 Spam 且允许通知）时生效，避免已归档/移动的邮件触发通知。
+func (a *App) enqueueTelegramNotifyForMessage(ctx context.Context, mailboxID, messageID string) {
+	if strings.TrimSpace(a.cfg.TelegramBotToken) == "" || !a.cfg.TelegramNotifyEnabled {
+		return
+	}
+	var (
+		userID   string
+		folder   string
+		subject  string
+		fromAddr string
+		fromName string
+		snippet  string
+	)
+	err := a.db.QueryRowContext(ctx,
+		`SELECT mb.user_id, COALESCE(f.name,''), COALESCE(m.subject,''), COALESCE(m.from_addr,''), COALESCE(m.from_name,''), COALESCE(m.snippet,'')
+		 FROM messages m
+		 JOIN mailboxes mb ON mb.id=m.mailbox_id
+		 LEFT JOIN folders f ON f.id=m.folder_id
+		 WHERE m.id=?`, messageID).Scan(&userID, &folder, &subject, &fromAddr, &fromName, &snippet)
+	if err != nil {
+		return
+	}
+	folderName := folder
+	if folderName == "" {
+		folderName = "Inbox"
+	}
+	if !strings.EqualFold(folderName, "Inbox") && !strings.EqualFold(folderName, "Spam") {
+		return
+	}
+	_ = a.enqueueTelegramNotify(ctx, mailboxID, userID, folderName, messageID, TelegramNotifyMeta{
+		Subject: subject, FromAddr: fromAddr, FromName: fromName, Snippet: snippet,
+	})
 }
 
 // handleStart 响应 /start 命令。

@@ -322,6 +322,7 @@ func (a *App) telegramAlertWorker(ctx context.Context) {
 			a.log.Info("telegram alert worker stopped")
 			return
 		case <-ticker.C:
+			a.checkTelegramAlerts(ctx)
 			if err := a.processDueTelegramAlerts(ctx); err != nil && !errors.Is(err, context.Canceled) {
 				a.log.Warn("telegram alert processing failed", "error", err)
 			}

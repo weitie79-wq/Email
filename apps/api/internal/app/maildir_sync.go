@@ -536,6 +536,7 @@ func (a *App) syncMaildirFile(ctx context.Context, mb maildirMailbox, folder mai
 	id, err := a.insertMessage(ctx, msg, attachments)
 	if err == nil && strings.EqualFold(folder.Name, "Inbox") {
 		a.applyInboundControls(ctx, id, mb.ID, msg.From, msg.Subject)
+		a.enqueueTelegramNotifyForMessage(ctx, mb.ID, id)
 	}
 	return err == nil, err
 }

@@ -20,9 +20,9 @@
 
 ## 阶段 4：通知与告警
 
-- [ ] 4.1 实现 `telegram_notify.go`：`enqueueTelegramNotify` 入队（绑定/开关/spam 过滤）+ 通知出队列 worker + 指数退避
-- [ ] 4.2 在邮件落库路径（maildir Inbox、外部 IMAP、本地投递）挂钩通知入队
-- [ ] 4.3 实现 `telegram_alerts.go`：告警判定（队列失败/积压/worker 心跳/SMTP/DB）+ 告警出队列 worker
+- [x] 4.1 实现 `telegram_notify.go`：`enqueueTelegramNotify` 入队（绑定/开关/spam 过滤）+ 通知出队列 worker + 指数退避
+- [x] 4.2 在邮件落库路径（maildir Inbox、外部 IMAP、本地投递）挂钩通知入队
+- [x] 4.3 实现 `telegram_alerts.go`：告警判定（队列失败/积压/worker 心跳/SMTP/DB）+ 告警出队列 worker
 
 ## 阶段 5：管理命令
 

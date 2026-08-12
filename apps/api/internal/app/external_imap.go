@@ -1181,6 +1181,7 @@ func (a *App) syncExternalIMAPFolder(ctx context.Context, account externalIMAPAc
 			if err := a.writeStoredMessageToMaildir(ctx, msgID, stored, attachments); err != nil {
 				a.log.Warn("failed to write external imap message to maildir", "message", msgID, "error", err)
 			}
+			a.enqueueTelegramNotifyForMessage(ctx, account.MailboxID, msgID)
 			imported++
 		} else {
 			skipped++
