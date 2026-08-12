@@ -26,12 +26,12 @@
 
 ## 阶段 5：管理命令
 
-- [ ] 5.1 实现 `/admin` 命令组（users/domains/mailboxes/disable/enable）与 admin 权限校验
+- [x] 5.1 实现 `/admin` 命令组（users/domains/mailboxes/disable/enable）与 admin 权限校验
 
 ## 阶段 6：Web 设置与 API
 
-- [ ] 6.1 后端 API：`GET /api/me/telegram/settings`、`PUT /api/me/telegram/settings/{mailboxId}`、`GET /api/me/telegram/binding-code`
-- [ ] 6.2 前端 `lib/api.ts` 增加 Telegram 方法，设置页展示绑定码与邮箱通知开关
+- [x] 6.1 后端 API：`GET /api/me/telegram/settings`、`PUT /api/me/telegram/settings/{mailboxId}`、`GET /api/me/telegram/binding-code`
+- [x] 6.2 前端 `lib/api.ts` 增加 Telegram 方法，设置页展示绑定码与邮箱通知开关
 
 ## 阶段 7：Mini App
 

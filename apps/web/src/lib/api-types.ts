@@ -197,3 +197,6 @@ export type PublicSettings = { openRegistration: boolean; turnstileEnabled: bool
 export type LoginPayload = { email?: string; password?: string; turnstileToken?: string; challengeToken?: string; twoFactorCode?: string }
 export type LoginResponse = { user?: User; twoFactorRequired?: boolean; challengeToken?: string }
 export type RegisterPayload = { email: string; displayName: string; password: string; turnstileToken?: string; domainId?: string; localPart?: string }
+export type TelegramMailboxSettings = { mailboxId: string; address: string; displayName: string; notifyEnabled: boolean; notifySpam: boolean }
+export type TelegramSettings = { enabled: boolean; botConfigured: boolean; bound: boolean; bindingCode?: string; mailboxes: TelegramMailboxSettings[]; bindingChatId?: number }
+export type TelegramMailboxSettingsPayload = { notifyEnabled?: boolean; notifySpam?: boolean }

@@ -4,7 +4,7 @@ import type { ImperativePanelHandle } from "react-resizable-panels"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { ArrowLeft, BarChart3, Ban, Bell, CalendarClock, Clock3, Contact, Copy, History, Info, KeyRound, Laptop, Link2, LogOut, Mail, MailCheck, MailX, Moon, PanelLeftClose, PanelLeftOpen, PencilLine, Plus, RefreshCcw, Search, Settings, Share2, ShieldCheck, SlidersHorizontal, Sun, Trash2, UserPlus, Users, X } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
-import { api, APIToken, ExternalImapAccount, ExternalImapAccountPayload, ExternalImapFolder, ExternalImapOAuthProvider, ExternalImapStorageMode, ExternalImapSyncRun, ExternalImapTlsMode, MailboxShare, MailboxShareAuditEvent, MailboxSharePayload, MailboxShareUpdatePayload, MailLabel, MailRule, MailRuleAction, MailRuleCondition, Mailbox, MailboxApplyOptions, MailSignature, MailStats, PermissionLimits, ShareUser, UserNotification } from "@/lib/api"
+import { api, APIToken, ExternalImapAccount, ExternalImapAccountPayload, ExternalImapFolder, ExternalImapOAuthProvider, ExternalImapStorageMode, ExternalImapSyncRun, ExternalImapTlsMode, MailboxShare, MailboxShareAuditEvent, MailboxSharePayload, MailboxShareUpdatePayload, MailLabel, MailRule, MailRuleAction, MailRuleCondition, Mailbox, MailboxApplyOptions, MailSignature, MailStats, PermissionLimits, ShareUser, TelegramSettings, TelegramMailboxSettingsPayload, UserNotification } from "@/lib/api"
 import { cn, formatBytes } from "@/lib/utils"
 import { applyTheme, getInitialTheme } from "@/lib/theme"
 import { DisplayMode, useDisplayMode } from "@/lib/display-mode"
@@ -33,7 +33,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { useToast } from "@/hooks/use-toast"
 
-type Tab = "profile" | "apiTokens" | "mailboxes" | "sharing" | "clients" | "signatures" | "contacts" | "cleanup" | "rules" | "blocked" | "stats"
+type Tab = "profile" | "apiTokens" | "mailboxes" | "sharing" | "clients" | "signatures" | "contacts" | "cleanup" | "rules" | "blocked" | "stats" | "telegram"
 type PendingConfirm = { title: string; description?: string; confirmText: string; destructive?: boolean; onConfirm: () => void }
 const tabs: Record<Tab, { label: string; icon: React.ReactNode }> = {
   profile: { label: "账户资料", icon: <Settings className="h-4 w-4" /> },
@@ -47,6 +47,7 @@ const tabs: Record<Tab, { label: string; icon: React.ReactNode }> = {
   rules: { label: "收件规则", icon: <SlidersHorizontal className="h-4 w-4" /> },
   blocked: { label: "被拦截邮件", icon: <Ban className="h-4 w-4" /> },
   stats: { label: "数据统计", icon: <BarChart3 className="h-4 w-4" /> },
+  telegram: { label: "Telegram", icon: <MailCheck className="h-4 w-4" /> },
 }
 const tabKeys = Object.keys(tabs) as Tab[]
 const actionLabels: Record<string, string> = { archive: "移入归档", trash: "移入回收站", star: "添加星标", "mark-read": "标记已读" }
@@ -95,6 +96,7 @@ export function ProfilePage() {
     if (key === "rules") return canManageRules
     if (key === "blocked") return canManageBlocked
     if (key === "stats") return canViewStats
+    if (key === "telegram") return canAccessMail
     return false
   })
   const tab: Tab = rawTab && visibleTabKeys.includes(rawTab) ? rawTab : "profile"
@@ -395,6 +397,7 @@ export function ProfilePage() {
     if (tab === "rules") return <RulesSection items={rules.data?.items || []} mailboxes={mailboxes.data?.items || []} labels={ruleLabels.data?.items || []} open={ruleDialogOpen} onOpenChange={setRuleDialogOpen} onCreate={(payload) => createRule.mutate(payload)} onDelete={(id) => deleteRule.mutate(id)} pending={createRule.isPending} />
     if (tab === "blocked") return <BlockedSection items={blocked.data?.items || []} mailboxes={mailboxes.data?.items || []} mailboxId={blockedMailboxId} spamCount={canViewStats ? stats.data?.byFolder.find((f) => f.role === "spam")?.count || 0 : 0} onMailboxChange={setBlockedMailboxId} onCreate={(form) => createBlocked.mutate(form)} onDelete={(id) => deleteBlocked.mutate(id)} pending={createBlocked.isPending} />
     if (tab === "stats") return <StatsSection stats={stats.data} mailbox={selectedMailbox} onRefresh={() => stats.refetch()} />
+    if (tab === "telegram") return <TelegramSection />
     return <ProfileOverview user={user!} profile={profile} password={password} passwordFormRef={passwordFormRef} stats={canViewStats ? stats.data : undefined} showStats={canViewStats} displayMode={displayMode} onDisplayModeChange={setDisplayMode} twoFactorFormRef={twoFactorFormRef} setupTwoFactor={setupTwoFactor} enableTwoFactor={enableTwoFactor} disableTwoFactor={disableTwoFactor} onCopy={copy} />
   }
 }
@@ -1983,3 +1986,57 @@ function AccountHeader({ collapsed, name, email, darkMode, onToggleTheme, onBack
 }
 function cleanAccountName(name: string, email?: string) { const value = name.trim(); if (!value || (email && value.toLowerCase() === email.toLowerCase())) return email?.split("@")[0] || "用户"; return value }
 function accountInitial(name: string, email?: string) { const source = cleanAccountName(name, email); const first = Array.from(source.trim())[0]; return (first || "蓝").toUpperCase() }
+
+function TelegramSection() {
+  const { toast } = useToast()
+  const qc = useQueryClient()
+  const settings = useQuery({ queryKey: ["telegram-settings"], queryFn: api.telegramSettings })
+  const bindingCode = useMutation({
+    mutationFn: api.telegramBindingCode,
+    onSuccess: (res) => { qc.setQueryData(["telegram-settings"], (old?: TelegramSettings) => (old ? { ...old, bindingCode: res.code } : old)); toast({ title: "绑定码已生成" }) },
+    onError: (error) => toast({ title: "生成失败", description: error.message }),
+  })
+  const updateMailbox = useMutation({
+    mutationFn: ({ mailboxId, payload }: { mailboxId: string; payload: TelegramMailboxSettingsPayload }) => api.updateTelegramMailboxSettings(mailboxId, payload),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["telegram-settings"] }); toast({ title: "设置已保存" }) },
+    onError: (error) => toast({ title: "保存失败", description: error.message }),
+  })
+  const s = settings.data
+  async function copy(text: string) { await navigator.clipboard.writeText(text); toast({ title: "已复制" }) }
+  if (!s) return <div className="text-sm text-muted-foreground">{settings.isLoading ? "加载中..." : "暂无设置"}</div>
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader><CardTitle>Telegram 通知</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          {!s.botConfigured ? (
+            <p className="text-sm text-muted-foreground">服务端未配置 Telegram Bot，请联系管理员在环境变量中设置 EOOS_TELEGRAM_BOT_TOKEN。</p>
+          ) : s.bound ? (
+            <div className="flex items-center gap-2 text-sm"><Badge variant="secondary">已绑定 Chat {s.bindingChatId}</Badge><span className="text-muted-foreground">可在 Telegram 中使用 /inbox、/read、/send 等命令。</span></div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">在 Telegram 中向 Bot 发送 /bind 并输入下方绑定码完成绑定。绑定码 10 分钟内有效，仅可使用一次。</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" onClick={() => bindingCode.mutate()} disabled={bindingCode.isPending}>{bindingCode.isPending ? "生成中..." : "生成绑定码"}</Button>
+                {s.bindingCode && <><code className="rounded bg-muted px-2 py-1 text-sm font-semibold">{s.bindingCode}</code><Button type="button" variant="outline" size="sm" onClick={() => copy(s.bindingCode!)}><Copy className="h-3 w-3" /></Button></>}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      {s.mailboxes.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>邮箱通知开关</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            {s.mailboxes.map((mb) => (
+              <div key={mb.mailboxId} className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                <div className="min-w-0"><div className="truncate text-sm font-medium">{mb.address}</div><div className="text-xs text-muted-foreground">新邮件通知</div></div>
+                <Switch checked={mb.notifyEnabled} disabled={updateMailbox.isPending} onCheckedChange={(checked) => updateMailbox.mutate({ mailboxId: mb.mailboxId, payload: { notifyEnabled: checked } })} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
