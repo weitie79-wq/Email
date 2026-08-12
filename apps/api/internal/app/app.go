@@ -90,6 +90,9 @@ func New(cfg Config, logger *slog.Logger) (*App, error) {
 	a.startWorker(func() { a.externalIMAPWorker(workerCtx) })
 	a.startWorker(func() { a.smtpEventsCleanupWorker(workerCtx) })
 	a.startWorker(func() { a.statusWebhookWorker(workerCtx) })
+	a.startWorker(func() { a.telegramBotWorker(workerCtx) })
+	a.startWorker(func() { a.telegramNotifyWorker(workerCtx) })
+	a.startWorker(func() { a.telegramAlertWorker(workerCtx) })
 	return a, nil
 }
 

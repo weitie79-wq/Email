@@ -30,6 +30,16 @@ func (a *App) Router() http.Handler {
 		respondJSON(w, http.StatusOK, map[string]any{"ok": true, "time": a.now().UTC()})
 	})
 
+	// Telegram webhook endpoint
+	r.Post("/telegram", a.handleTelegramWebhook)
+
+	r.Group(func(r chi.Router) {
+		r.Use(a.requireAuth)
+		r.With(a.requirePermission(PermissionSettingsView)).Post("/telegram/binding-codes", a.handleGenerateTelegramBindingCode)
+		r.With(a.requirePermission(PermissionSettingsView)).Get("/telegram/bindings", a.handleListTelegramBindings)
+		r.With(a.requirePermission(PermissionSettingsView)).Delete("/telegram/bindings/{id}", a.handleDeleteTelegramBinding)
+	})
+
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/public/settings", a.handlePublicSettings)
 		r.Post("/auth/register", a.handleRegister)
