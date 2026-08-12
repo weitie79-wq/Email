@@ -64,15 +64,29 @@ EOOS_TELEGRAM_BOT_TOKEN=
 ```bash
 cd deploy
 docker compose up -d
-```
-
-查看日志：
-
-```bash
 docker compose logs -f eoos-email
 ```
 
-#### 方式二：本地开发部署
+#### 方式二：本地构建镜像
+
+```bash
+# 1. 登录 GHCR
+docker login ghcr.io
+
+# 2. 构建 All-in-one 镜像
+docker build -t ghcr.io/eoos996/eoos-email:latest -f deploy/all-in-one/Dockerfile .
+docker push ghcr.io/eoos996/eoos-email:latest
+
+# 3. 构建 API 镜像
+docker build -t ghcr.io/eoos996/eoos-email-api:latest -f deploy/api.Dockerfile .
+docker push ghcr.io/eoos996/eoos-email-api:latest
+
+# 4. 构建 Web 镜像
+docker build -t ghcr.io/eoos996/eoos-email-web:latest -f deploy/web.Dockerfile .
+docker push ghcr.io/eoos996/eoos-email-web:latest
+```
+
+#### 方式三：本地开发模式
 
 1. 安装依赖
 
@@ -246,6 +260,44 @@ pkill -f "go run ./cmd/server" && source deploy/.env && go run ./cmd/server
 - **maildir sync 慢**：调整 `EOOS_MAILDIR_SCAN_SECONDS`，建议 30 秒
 
 ---
+
+## 代码审计
+
+### 安全审计
+
+- **SQL 注入**：所有查询使用参数化查询（`?` 占位符），无字符串拼接
+- **XSS 防护**：Telegram 消息内容使用 HTML 转义
+- **认证验证**：Telegram Mini App 使用 HMAC-SHA256 签名验证
+- **会话管理**：Session 通过 JWT 签发，有效期可配置
+- **权限控制**：管理命令需要 `requirePermission` 中间件
+- **限流保护**：Telegram API 调用有上下文超时限制
+
+### 测试覆盖
+
+```bash
+cd apps/api
+go test ./internal/app/ -run "TestTelegram" -v
+```
+
+测试结果：
+- TestTelegramHTMLEscape: PASS
+- TestSplitRecipients: PASS
+- TestGenerateCode: PASS
+- TestRandInt: PASS
+- TestNormalizeEmail: PASS
+
+### 代码统计
+
+| 文件 | 行数 | 说明 |
+|------|------|------|
+| telegram_bot.go | 569 | Bot 核心、长轮询、更新处理 |
+| telegram_commands.go | 581 | 命令处理、消息列表、发送 |
+| telegram_compose.go | 281 | 撰写流程状态机 |
+| telegram_webapp_auth.go | 138 | Mini App 认证 |
+| telegram_alerts.go | 126 | 告警通知 |
+| telegram_settings.go | 127 | 设置 API |
+| telegram_utils_test.go | 94 | 单元测试 |
+| **总计** | **1,916** | |
 
 ## 参考
 
