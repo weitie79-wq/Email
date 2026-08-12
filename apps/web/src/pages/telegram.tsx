@@ -43,26 +43,51 @@ export function TelegramMiniAppPage() {
     async function run() {
       try {
         await loadTelegramWebAppScript()
+        if (cancelled) return
         const initData = window.Telegram?.WebApp?.initData || ""
         const target = params.get("mail") ? `/?mail=${encodeURIComponent(params.get("mail")!)}` : "/"
         if (!initData) {
-          if (cancelled) return
           try {
             const me = await api.me()
+            if (cancelled) return
+            if (me?.user) {
+              navigate(target, { replace: true })
+              return
+            }
+          } catch {
+            // not logged in
+          }
+          if (cancelled) return
+          setState("needLogin")
+          return
+        }
+        try {
+          await api.webappAuth({ initData })
+          if (cancelled) return
+          setState("done")
+          window.Telegram?.WebApp?.ready?.()
+          window.Telegram?.WebApp?.expand?.()
+          navigate(target, { replace: true })
+        } catch (err) {
+          if (cancelled) return
+          const msg = err instanceof Error ? err.message : "登录失败"
+          if (msg.includes("未绑定") || msg.includes("未配置") || msg.includes("not configured")) {
+            setError(msg)
+            setState("error")
+            return
+          }
+          // 继续尝试普通登录
+          try {
+            const me = await api.me()
+            if (cancelled) return
             if (me?.user) {
               navigate(target, { replace: true })
               return
             }
           } catch {}
-          setState("needLogin")
-          return
+          setError(msg)
+          setState("error")
         }
-        await api.webappAuth({ initData })
-        if (cancelled) return
-        setState("done")
-        window.Telegram?.WebApp?.ready?.()
-        window.Telegram?.WebApp?.expand?.()
-        navigate(target, { replace: true })
       } catch (err) {
         if (cancelled) return
         setError(err instanceof Error ? err.message : "登录失败")
