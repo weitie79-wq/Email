@@ -29,6 +29,7 @@ func (a *App) Router() http.Handler {
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		respondJSON(w, http.StatusOK, map[string]any{"ok": true, "time": a.now().UTC()})
 	})
+	r.Post("/api/telegram/webapp-auth", a.handleTelegramWebappAuth)
 
 	// Telegram webhook endpoint
 	r.Post("/telegram", a.handleTelegramWebhook)

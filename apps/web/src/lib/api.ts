@@ -78,6 +78,7 @@ export const api = {
   telegramSettings: () => request<TelegramSettings>("/api/me/telegram/settings"),
   updateTelegramMailboxSettings: (mailboxId: string, payload: TelegramMailboxSettingsPayload) => request<{ ok: boolean }>(`/api/me/telegram/settings/${mailboxId}`, { method: "PUT", body: JSON.stringify(payload) }),
   telegramBindingCode: () => request<{ code: string }>("/api/me/telegram/binding-code", { method: "POST" }),
+  webappAuth: (payload: { initData: string }) => request<{ ok: boolean }>("/api/telegram/webapp-auth", { method: "POST", body: JSON.stringify(payload) }),
   externalImapAccounts: (mailboxId?: string) => request<ListResponse<ExternalImapAccount>>(`/api/me/external-imap-accounts${mailboxId ? `?mailboxId=${encodeURIComponent(mailboxId)}` : ""}`),
   createExternalImapAccount: (payload: ExternalImapAccountPayload) => request<ExternalImapAccount>("/api/me/external-imap-accounts", { method: "POST", body: JSON.stringify(payload) }),
   updateExternalImapAccount: (id: string, payload: ExternalImapAccountPayload) => request<ExternalImapAccount>(`/api/me/external-imap-accounts/${id}`, { method: "POST", body: JSON.stringify(payload) }),

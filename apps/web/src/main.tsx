@@ -13,6 +13,7 @@ const RegisterPage = React.lazy(() => import("@/pages/register").then((module) =
 const MailPage = React.lazy(() => import("@/pages/mail").then((module) => ({ default: module.MailPage })))
 const AdminPage = React.lazy(() => import("@/pages/admin").then((module) => ({ default: module.AdminPage })))
 const ProfilePage = React.lazy(() => import("@/pages/profile").then((module) => ({ default: module.ProfilePage })))
+const TelegramMiniAppPage = React.lazy(() => import("@/pages/telegram").then((module) => ({ default: module.TelegramMiniAppPage })))
 const NotFoundPage = React.lazy(() => import("@/pages/not-found").then((module) => ({ default: module.NotFoundPage })))
 
 function lazyPage(element: React.ReactNode) {
@@ -23,6 +24,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWind
 const router = createBrowserRouter([
   { path: "/login", element: lazyPage(<LoginPage />) },
   { path: "/register", element: lazyPage(<RegisterPage />) },
+  { path: "/telegram", element: lazyPage(<TelegramMiniAppPage />) },
   { path: "/", element: <ProtectedLayout />, children: [
     { index: true, element: lazyPage(<MailPage />) },
     { path: "mail", element: <Navigate to="/" replace /> },

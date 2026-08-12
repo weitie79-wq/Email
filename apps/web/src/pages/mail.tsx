@@ -10,7 +10,7 @@ import ImageExtension from "@tiptap/extension-image"
 import TextAlign from "@tiptap/extension-text-align"
 import Placeholder from "@tiptap/extension-placeholder"
 import { BackgroundColor, Color, FontFamily, FontSize, TextStyle } from "@tiptap/extension-text-style"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import type { ImperativePanelHandle } from "react-resizable-panels"
 import { AlignCenter, AlignLeft, AlignRight, Archive, ArrowLeft, Bold, Calendar, Check, ChevronDown, ChevronsUpDown, Clock3, Code2, Copy, Ellipsis, Eraser, Eye, FileText, Forward, Highlighter, History, Image, Inbox, IndentDecrease, IndentIncrease, Italic, Link, List, ListOrdered, Mail, MailCheck, Moon, PanelLeftClose, PanelLeftOpen, Paperclip, Pencil, PencilLine, Plus, Quote, Redo2, RefreshCcw, Reply, RotateCcw, Search, Send, Settings, ShieldCheck, Signature, SlidersHorizontal, Smile, Star, Strikethrough, Sun, Tag, Trash2, Type, Underline, Undo2, X } from "lucide-react"
 import { api, ExternalImapAccount, ExternalImapFolder, ListResponse, Mailbox, MailFolder, MailLabel, MailMessage, SendPayload, DraftPayload, ScheduledSend, SendQueueItem, SendQueueAuditEvent, SendQueueStatus, PermissionLimits } from "@/lib/api"
@@ -109,6 +109,7 @@ export function MailPage() {
   const qc = useQueryClient()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const me = useMe()
   const [folder, setFolder] = React.useState("Inbox")
   const [mailView, setMailView] = React.useState<MailView>("folder")
@@ -211,6 +212,15 @@ export function MailPage() {
     setExpandedExternalAccountIds([])
     if (mailView === "external") setMailView("folder")
   }, [externalImapEnabled, mailView])
+  React.useEffect(() => {
+    const mailId = searchParams.get("mail")
+    if (!mailId) return
+    setSelectedId(mailId)
+    setMailView("folder")
+    setFolder("Inbox")
+    setSelectedLabelId("")
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
   React.useEffect(() => {
     const ids = new Set((externalMailAccounts.data?.items || []).map((item) => item.id))
     setExpandedExternalAccountIds((current) => {

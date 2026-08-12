@@ -35,8 +35,8 @@
 
 ## 阶段 7：Mini App
 
-- [ ] 7.1 后端：`POST /api/telegram/webapp-auth` WebApp initData HMAC 校验并签发会话
-- [ ] 7.2 前端：`/telegram` 独立入口页，WebApp 静默登录与邮件详情定位
+- [x] 7.1 后端：`POST /api/telegram/webapp-auth` WebApp initData HMAC 校验并签发会话
+- [x] 7.2 前端：`/telegram` 独立入口页，WebApp 静默登录与邮件详情定位
 
 ## 阶段 8：测试与验证
 
