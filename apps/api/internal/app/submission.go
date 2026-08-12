@@ -75,7 +75,7 @@ func (a *App) newSubmissionServer(addr string, tlsConfig *tls.Config) *smtpserve
 func LoadServerTLSConfig(cfg Config) (*tls.Config, error) {
 	certFile, keyFile := strings.TrimSpace(cfg.TLSCertFile), strings.TrimSpace(cfg.TLSKeyFile)
 	if certFile == "" || keyFile == "" {
-		return nil, errors.New("LANQIN_TLS_CERT_FILE and LANQIN_TLS_KEY_FILE are required when SMTP submission is enabled")
+		return nil, errors.New("EOOS_TLS_CERT_FILE and EOOS_TLS_KEY_FILE are required when SMTP submission is enabled")
 	}
 	return &tls.Config{
 		MinVersion: tls.VersionTLS12,
@@ -497,7 +497,7 @@ func deduceBCCRecipients(envelope, to, cc []string) []string {
 func domainPart(email string) string {
 	parts := strings.SplitN(normalizeEmail(email), "@", 2)
 	if len(parts) != 2 || parts[1] == "" {
-		return "lanqin.local"
+		return "eoos.local"
 	}
 	return parts[1]
 }

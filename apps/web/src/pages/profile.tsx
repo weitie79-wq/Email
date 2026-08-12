@@ -61,7 +61,7 @@ export function ProfilePage() {
   const twoFactorFormRef = React.useRef<HTMLFormElement>(null)
   const sidebarPanelRef = React.useRef<ImperativePanelHandle>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
-  const [mailboxId, setMailboxId] = React.useState(() => localStorage.getItem("lanqin:selected-mailbox") || "")
+  const [mailboxId, setMailboxId] = React.useState(() => localStorage.getItem("eoos:selected-mailbox") || "")
   const [darkMode, setDarkMode] = React.useState(getInitialTheme)
   const [displayMode, setDisplayMode] = useDisplayMode()
   const [blockedMailboxId, setBlockedMailboxId] = React.useState("all")
@@ -271,12 +271,12 @@ export function ProfilePage() {
     const items = mailboxes.data?.items || []
     if (items.length === 0) {
       if (mailboxId) setMailboxId("")
-      localStorage.removeItem("lanqin:selected-mailbox")
+      localStorage.removeItem("eoos:selected-mailbox")
       return
     }
     if (!mailboxId || !items.some((m) => m.id === mailboxId)) setMailboxId(items[0].id)
   }, [mailboxId, mailboxes.isSuccess, mailboxes.data?.items])
-  React.useEffect(() => { if (mailboxId) localStorage.setItem("lanqin:selected-mailbox", mailboxId); else localStorage.removeItem("lanqin:selected-mailbox") }, [mailboxId])
+  React.useEffect(() => { if (mailboxId) localStorage.setItem("eoos:selected-mailbox", mailboxId); else localStorage.removeItem("eoos:selected-mailbox") }, [mailboxId])
   React.useEffect(() => { applyTheme(darkMode, themeMountedRef.current); themeMountedRef.current = true }, [darkMode])
 
   const logout = useLogout()
@@ -293,7 +293,7 @@ export function ProfilePage() {
   const sidebarContent = (
     <Sidebar collapsible="none" className="h-full w-full border-r bg-sidebar">
       <SidebarHeader className={cn("border-b py-4", sidebarCollapsed ? "px-2" : "px-4")}>
-        <AccountHeader collapsed={sidebarCollapsed} name={user.displayName || selectedMailbox?.address || "LanQin"} email={user.email || selectedMailbox?.address} darkMode={darkMode} onToggleTheme={() => setDarkMode((v) => !v)} onBack={() => navigate("/")} />
+        <AccountHeader collapsed={sidebarCollapsed} name={user.displayName || selectedMailbox?.address || "EOOS"} email={user.email || selectedMailbox?.address} darkMode={darkMode} onToggleTheme={() => setDarkMode((v) => !v)} onBack={() => navigate("/")} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

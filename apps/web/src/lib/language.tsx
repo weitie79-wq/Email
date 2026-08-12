@@ -3,7 +3,7 @@ import * as React from "react"
 
 export type Language = "zh-CN" | "zh-TW" | "en"
 
-export const LANGUAGE_STORAGE_KEY = "lanqin:language"
+export const LANGUAGE_STORAGE_KEY = "eoos:language"
 
 export const languageOptions: { value: Language; label: string; shortLabel: string; htmlLang: string }[] = [
   { value: "zh-CN", label: "简体中文", shortLabel: "简", htmlLang: "zh-CN" },
@@ -25,7 +25,7 @@ export function getInitialLanguage(): Language {
 
 export function setStoredLanguage(language: Language) {
   window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
-  window.dispatchEvent(new CustomEvent("lanqin:language", { detail: language }))
+  window.dispatchEvent(new CustomEvent("eoos:language", { detail: language }))
 }
 
 export function useLanguage() {
@@ -35,10 +35,10 @@ export function useLanguage() {
       setLanguageState(getInitialLanguage())
     }
     window.addEventListener("storage", sync)
-    window.addEventListener("lanqin:language", sync)
+    window.addEventListener("eoos:language", sync)
     return () => {
       window.removeEventListener("storage", sync)
-      window.removeEventListener("lanqin:language", sync)
+      window.removeEventListener("eoos:language", sync)
     }
   }, [])
   const setLanguage = React.useCallback((nextLanguage: Language) => {
@@ -503,7 +503,7 @@ function localizeAttributes(element: Element, language: Language) {
 function shouldSkipElement(element: Element) {
   const tag = element.tagName.toLowerCase()
   if (["script", "style", "code", "pre", "textarea", "option"].includes(tag)) return true
-  return Boolean(element.closest("[data-lanqin-i18n-ignore], [contenteditable='true'], .ProseMirror"))
+  return Boolean(element.closest("[data-eoos-i18n-ignore], [contenteditable='true'], .ProseMirror"))
 }
 
 function shouldTranslate(value: string) {

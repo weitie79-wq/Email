@@ -1,19 +1,19 @@
 services:
   api:
-    image: ${LANQIN_API_IMAGE:-ghcr.io/lanqin996/lanqin-email-api:latest}
+    image: ${EOOS_API_IMAGE:-ghcr.io/eoos996/eoos-email-api:latest}
     env_file: .env
     environment:
-      LANQIN_SMTP_HOST: ${LANQIN_STACK_SMTP_HOST:-postfix}
-      LANQIN_SMTP_PORT: ${LANQIN_STACK_SMTP_PORT:-25}
-      LANQIN_SUBMISSION_ADDR: ${LANQIN_SUBMISSION_ADDR:-}
-      LANQIN_SUBMISSION_TLS_ADDR: ${LANQIN_SUBMISSION_TLS_ADDR:-}
+      EOOS_SMTP_HOST: ${EOOS_STACK_SMTP_HOST:-postfix}
+      EOOS_SMTP_PORT: ${EOOS_STACK_SMTP_PORT:-25}
+      EOOS_SUBMISSION_ADDR: ${EOOS_SUBMISSION_ADDR:-}
+      EOOS_SUBMISSION_TLS_ADDR: ${EOOS_SUBMISSION_TLS_ADDR:-}
     volumes:
       - ./data:/data
       - ./mail:/var/mail/vhosts:ro
       # 生产环境如需第三方客户端校验证书，请取消下面挂载的注释，并在 .env 配置：
-      # LANQIN_TLS_CERT_FILE=/certs/fullchain.pem
-      # LANQIN_TLS_KEY_FILE=/certs/privkey.pem
-      # - /etc/letsencrypt/live/${LANQIN_PUBLIC_HOSTNAME}:/certs:ro
+      # EOOS_TLS_CERT_FILE=/certs/fullchain.pem
+      # EOOS_TLS_KEY_FILE=/certs/privkey.pem
+      # - /etc/letsencrypt/live/${EOOS_PUBLIC_HOSTNAME}:/certs:ro
     ports:
       - "465:465"
       - "587:587"
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${LANQIN_WEB_IMAGE:-ghcr.io/lanqin996/lanqin-email-web:latest}
+    image: ${EOOS_WEB_IMAGE:-ghcr.io/eoos996/eoos-email-web:latest}
     restart: unless-stopped
 
   nginx:
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
 
   postfix:
-    image: ${LANQIN_POSTFIX_IMAGE:-ghcr.io/lanqin996/lanqin-email-postfix:latest}
+    image: ${EOOS_POSTFIX_IMAGE:-ghcr.io/eoos996/eoos-email-postfix:latest}
     env_file: .env
     volumes:
       - ./data:/data
@@ -54,14 +54,14 @@ services:
     restart: unless-stopped
 
   dovecot:
-    image: ${LANQIN_DOVECOT_IMAGE:-ghcr.io/lanqin996/lanqin-email-dovecot:latest}
+    image: ${EOOS_DOVECOT_IMAGE:-ghcr.io/eoos996/eoos-email-dovecot:latest}
     env_file: .env
     volumes:
       - ./data:/data
       - ./mail:/var/mail/vhosts
       # 生产环境如需第三方客户端校验证书，请取消下面挂载，并在 .env 配置：
-      # LANQIN_TLS_CERT_FILE=/etc/letsencrypt/live/mail.example.com/fullchain.pem
-      # LANQIN_TLS_KEY_FILE=/etc/letsencrypt/live/mail.example.com/privkey.pem
+      # EOOS_TLS_CERT_FILE=/etc/letsencrypt/live/mail.example.com/fullchain.pem
+      # EOOS_TLS_KEY_FILE=/etc/letsencrypt/live/mail.example.com/privkey.pem
       # - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
       - "993:993"
@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
 
   rspamd:
-    image: ${LANQIN_RSPAMD_IMAGE:-ghcr.io/lanqin996/lanqin-email-rspamd:latest}
+    image: ${EOOS_RSPAMD_IMAGE:-ghcr.io/eoos996/eoos-email-rspamd:latest}
     env_file: .env
     volumes:
       - ./data:/data:ro

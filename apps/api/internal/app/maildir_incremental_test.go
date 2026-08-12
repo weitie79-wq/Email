@@ -117,7 +117,7 @@ func prepareIncrementalMaildirTest(t *testing.T) (*App, *Mailbox, string) {
 	a.cfg.MaildirRoot = t.TempDir()
 	_, mb := defaultAdminUserAndMailbox(t, a)
 	clearMailboxMessagesForTest(t, a, mb.ID)
-	dir := filepath.Join(a.cfg.MaildirRoot, "lanqin.local", "admin", "Maildir", "new")
+	dir := filepath.Join(a.cfg.MaildirRoot, "eoos.local", "admin", "Maildir", "new")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func writeIncrementalMaildirMessage(t *testing.T, dir, name, messageID string) s
 	t.Helper()
 	raw := strings.Join([]string{
 		"From: sender@example.test",
-		"To: admin@lanqin.local",
+		"To: admin@eoos.local",
 		"Subject: " + name,
 		"Message-Id: " + messageID,
 		"Date: Sat, 13 Jun 2026 13:00:00 +0000",

@@ -445,7 +445,7 @@ func (a *App) syncUnregisteredMaildirFile(ctx context.Context, mb maildirMailbox
 		msg.MessageUID = newID("uid")
 	}
 	if msg.MessageID == "" {
-		msg.MessageID = fmt.Sprintf("<%s@lanqin.local>", newID("msg"))
+		msg.MessageID = fmt.Sprintf("<%s@eoos.local>", newID("msg"))
 	}
 	if msg.ReceivedAt.IsZero() {
 		msg.ReceivedAt = a.now().UTC()
@@ -509,7 +509,7 @@ func (a *App) syncMaildirFile(ctx context.Context, mb maildirMailbox, folder mai
 		msg.MessageUID = newID("uid")
 	}
 	if msg.MessageID == "" {
-		msg.MessageID = fmt.Sprintf("<%s@lanqin.local>", newID("msg"))
+		msg.MessageID = fmt.Sprintf("<%s@eoos.local>", newID("msg"))
 	}
 	if msg.ReceivedAt.IsZero() {
 		msg.ReceivedAt = a.now().UTC()

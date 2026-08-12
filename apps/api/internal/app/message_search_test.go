@@ -66,7 +66,7 @@ func TestMessageSearchFTSAcrossAPIs(t *testing.T) {
 	server := httptest.NewServer(a.Router())
 	defer server.Close()
 	client := &testClient{t: t, server: server}
-	if code := client.do("POST", "/api/auth/login", map[string]string{"email": "admin@lanqin.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
+	if code := client.do("POST", "/api/auth/login", map[string]string{"email": "admin@eoos.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
 		t.Fatalf("login code=%d", code)
 	}
 	_, mailbox := defaultAdminUserAndMailbox(t, a)

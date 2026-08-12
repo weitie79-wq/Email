@@ -1,2 +1,2 @@
-dbpath = /data/lanqin.db
+dbpath = /data/eoos.db
 query = SELECT 1 FROM domains WHERE name='%s' AND status='active'

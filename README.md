@@ -1,4 +1,4 @@
-# LanQin Email
+# EOOS Email
 
 [![English](https://img.shields.io/badge/English-README-blue)](./README.md)
 [![简体中文](https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-README-green)](./README.zh-CN.md)
@@ -12,7 +12,7 @@
 ![Dovecot](https://img.shields.io/badge/Dovecot-4B8BBE)
 ![Rspamd](https://img.shields.io/badge/Rspamd-FFD045)
 
-LanQin Email is a self-hosted full-stack webmail solution. The frontend is built with React + TypeScript + shadcn/ui, the backend uses Go + SQLite, and deployment can run as a single all-in-one container with API, Web, Nginx, Postfix, Dovecot, and Rspamd integrated.
+EOOS Email is a self-hosted full-stack webmail solution. The frontend is built with React + TypeScript + shadcn/ui, the backend uses Go + SQLite, and deployment can run as a single all-in-one container with API, Web, Nginx, Postfix, Dovecot, and Rspamd integrated.
 
 Community: [Telegram group](https://t.me/+EhII7MSyi3QwNDQ5)
 
@@ -90,7 +90,7 @@ Open:
 - Web: `http://localhost:5173`
 - API: `http://localhost:8080`
 
-The default admin email is `admin@lanqin.local`. For development, explicitly set `LANQIN_ADMIN_PASSWORD`; if it is not set, the backend generates a random password on first startup and prints it to the logs.
+The default admin email is `admin@eoos.local`. For development, explicitly set `EOOS_ADMIN_PASSWORD`; if it is not set, the backend generates a random password on first startup and prints it to the logs.
 
 ### Docker Deployment (single container)
 
@@ -108,7 +108,7 @@ Common commands:
 
 ```bash
 # View logs
-docker compose logs -f lanqin-email
+docker compose logs -f eoos-email
 
 # Pull the latest image and restart
 docker compose pull
@@ -130,8 +130,8 @@ See [`deploy/README.md`](./deploy/README.md) for more deployment details.
 
 ## First Deployment Checklist
 
-1. Edit `deploy/.env`: at minimum, change `LANQIN_PUBLIC_HOSTNAME`, `LANQIN_PUBLIC_BASE_URL`, `LANQIN_ADMIN_EMAIL`, and `LANQIN_ADMIN_PASSWORD`.
-2. In production, mount real TLS certificates and set `LANQIN_TLS_CERT_FILE` / `LANQIN_TLS_KEY_FILE`.
+1. Edit `deploy/.env`: at minimum, change `EOOS_PUBLIC_HOSTNAME`, `EOOS_PUBLIC_BASE_URL`, `EOOS_ADMIN_EMAIL`, and `EOOS_ADMIN_PASSWORD`.
+2. In production, mount real TLS certificates and set `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`.
 3. Log in to the admin panel and add your mail domain.
 4. Copy and configure MX, SPF, DKIM, and DMARC records from domain management, then run the DNS check.
 5. Create mailbox accounts, alias forwarding, or permission groups; enable registration, 2FA, Turnstile, and self-service mailbox requests as needed.
@@ -143,28 +143,28 @@ See [`deploy/.env.example`](./deploy/.env.example) for the full configuration. C
 
 | Variable | Description | Default / Example |
 |------|------|-----------|
-| `LANQIN_IMAGE` | All-in-one image | `ghcr.io/lanqin996/lanqin-email:latest` |
-| `LANQIN_PUBLIC_HOSTNAME` | Mail server hostname; affects Postfix/DNS display/links | `mail.example.com` |
-| `LANQIN_PUBLIC_BASE_URL` | Public Webmail URL | `https://mail.example.com` |
-| `LANQIN_ADMIN_EMAIL` | Initial admin email | `admin@example.com` |
-| `LANQIN_ADMIN_PASSWORD` | Initial admin password; must be changed in production | `ChangeMe123!` |
-| `LANQIN_DB_DRIVER` | API database driver: `sqlite`, `mysql`, or `postgres` | `sqlite` |
-| `LANQIN_DATABASE_URL` | MySQL DSN or PostgreSQL URL; required for external databases | Empty |
-| `LANQIN_DB_PATH` | SQLite database path | `/data/lanqin.db` |
-| `LANQIN_ALLOW_INSECURE_HTTP` | Allow non-HTTPS cookies; useful for local debugging | `false` |
-| `LANQIN_OPEN_REGISTRATION` | Enable public registration | `false` |
-| `LANQIN_TWO_FACTOR_ENABLED` | Global 2FA feature toggle | `false` |
-| `LANQIN_TURNSTILE_ENABLED` | Enable Turnstile | `false` |
-| `LANQIN_SMTP_HOST` / `LANQIN_SMTP_PORT` | Webmail outbound SMTP | `127.0.0.1` / `25` |
-| `LANQIN_MAILDIR_ROOT` | Maildir root directory | `/var/mail/vhosts` |
-| `LANQIN_CATCH_ALL_ENABLED` | Whether unregistered recipient addresses go into all messages | `false` |
-| `LANQIN_USER_MAILBOX_APPLY_ENABLED` | Allow users to request mailboxes by themselves | `false` |
-| `LANQIN_EXTERNAL_IMAP_ENABLED` | Enable external IMAP access; also configurable in Admin > System Settings > External IMAP | `false` |
-| `LANQIN_EXTERNAL_IMAP_SECRET_KEY` | Encryption key for external IMAP passwords; required before enabling access; also configurable in admin | Random long string |
-| `LANQIN_EXTERNAL_IMAP_SYNC_SECONDS` | Sync interval for external IMAP local-storage mode; also configurable in admin | `300` |
-| `LANQIN_EXTERNAL_IMAP_ALLOW_PRIVATE_HOSTS` | Allow external IMAP to connect to private/localhost hosts; also configurable in admin | `false` |
-| `LANQIN_EXTERNAL_IMAP_GMAIL_CLIENT_ID` / `LANQIN_EXTERNAL_IMAP_GMAIL_CLIENT_SECRET` | Gmail external IMAP OAuth2; callback is `/api/external-imap-oauth/gmail/callback` | Empty |
-| `LANQIN_EXTERNAL_IMAP_OUTLOOK_CLIENT_ID` / `LANQIN_EXTERNAL_IMAP_OUTLOOK_CLIENT_SECRET` | Microsoft 365 / Outlook external IMAP OAuth2; callback is `/api/external-imap-oauth/outlook/callback` | Empty |
+| `EOOS_IMAGE` | All-in-one image | `ghcr.io/eoos996/eoos-email:latest` |
+| `EOOS_PUBLIC_HOSTNAME` | Mail server hostname; affects Postfix/DNS display/links | `mail.example.com` |
+| `EOOS_PUBLIC_BASE_URL` | Public Webmail URL | `https://mail.example.com` |
+| `EOOS_ADMIN_EMAIL` | Initial admin email | `admin@example.com` |
+| `EOOS_ADMIN_PASSWORD` | Initial admin password; must be changed in production | `ChangeMe123!` |
+| `EOOS_DB_DRIVER` | API database driver: `sqlite`, `mysql`, or `postgres` | `sqlite` |
+| `EOOS_DATABASE_URL` | MySQL DSN or PostgreSQL URL; required for external databases | Empty |
+| `EOOS_DB_PATH` | SQLite database path | `/data/eoos.db` |
+| `EOOS_ALLOW_INSECURE_HTTP` | Allow non-HTTPS cookies; useful for local debugging | `false` |
+| `EOOS_OPEN_REGISTRATION` | Enable public registration | `false` |
+| `EOOS_TWO_FACTOR_ENABLED` | Global 2FA feature toggle | `false` |
+| `EOOS_TURNSTILE_ENABLED` | Enable Turnstile | `false` |
+| `EOOS_SMTP_HOST` / `EOOS_SMTP_PORT` | Webmail outbound SMTP | `127.0.0.1` / `25` |
+| `EOOS_MAILDIR_ROOT` | Maildir root directory | `/var/mail/vhosts` |
+| `EOOS_CATCH_ALL_ENABLED` | Whether unregistered recipient addresses go into all messages | `false` |
+| `EOOS_USER_MAILBOX_APPLY_ENABLED` | Allow users to request mailboxes by themselves | `false` |
+| `EOOS_EXTERNAL_IMAP_ENABLED` | Enable external IMAP access; also configurable in Admin > System Settings > External IMAP | `false` |
+| `EOOS_EXTERNAL_IMAP_SECRET_KEY` | Encryption key for external IMAP passwords; required before enabling access; also configurable in admin | Random long string |
+| `EOOS_EXTERNAL_IMAP_SYNC_SECONDS` | Sync interval for external IMAP local-storage mode; also configurable in admin | `300` |
+| `EOOS_EXTERNAL_IMAP_ALLOW_PRIVATE_HOSTS` | Allow external IMAP to connect to private/localhost hosts; also configurable in admin | `false` |
+| `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_SECRET` | Gmail external IMAP OAuth2; callback is `/api/external-imap-oauth/gmail/callback` | Empty |
+| `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_SECRET` | Microsoft 365 / Outlook external IMAP OAuth2; callback is `/api/external-imap-oauth/outlook/callback` | Empty |
 
 ## Architecture
 
@@ -181,11 +181,11 @@ docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/doc
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.postgres.yml up -d
 ```
 
-Each variant keeps Nginx, the API, Postfix, Dovecot, and Rspamd in the existing `lanqin-email` container and adds only one database container. See `deploy/.env.example` for the required passwords.
+Each variant keeps Nginx, the API, Postfix, Dovecot, and Rspamd in the existing `eoos-email` container and adds only one database container. See `deploy/.env.example` for the required passwords.
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│                 lanqin-email single container              │
+│                 eoos-email single container              │
 │                                                            │
 │  ┌─────────┐       ┌────────────┐       ┌──────────────┐   │
 │  │  Nginx  │ ───▶  │ Go API     │ ───▶  │ SQLite /data │   │
@@ -203,8 +203,8 @@ Mail flow:
 
 1. **Receiving**: Postfix receives mail → Rspamd scores/marks it → Dovecot writes to Maildir → API worker syncs it into SQLite → Webmail displays it.
 2. **Sending**: Webmail calls the API → API builds MIME → SMTP submits to Postfix or an external SMTP server → mail is delivered to the destination.
-3. **Local delivery**: In development, internal mailboxes can send directly into the recipient Inbox; if `LANQIN_SMTP_HOST` is not configured, external recipients are not actually delivered.
-4. **Third-party clients**: Connect with SMTP 465/587, IMAP 993, or POP3 995; in production, configure certificates that match `LANQIN_PUBLIC_HOSTNAME`.
+3. **Local delivery**: In development, internal mailboxes can send directly into the recipient Inbox; if `EOOS_SMTP_HOST` is not configured, external recipients are not actually delivered.
+4. **Third-party clients**: Connect with SMTP 465/587, IMAP 993, or POP3 995; in production, configure certificates that match `EOOS_PUBLIC_HOSTNAME`.
 5. **External mailbox access**: Users can add external IMAP accounts in personal mailbox management. Local-storage mode syncs mail into the database; remote-direct mode reads from the remote server each time and does not write into local mail tables.
 
 ## Open API
@@ -236,11 +236,11 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 ## SMTP Submission
 
-- Third-party client SMTP submission on `465/587` is handled by the LanQin API process.
-- Before enabling SMTP submission, configure `LANQIN_TLS_CERT_FILE` / `LANQIN_TLS_KEY_FILE`; the API will not expose 465/587 externally with a localhost self-signed certificate.
+- Third-party client SMTP submission on `465/587` is handled by the EOOS API process.
+- Before enabling SMTP submission, configure `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`; the API will not expose 465/587 externally with a localhost self-signed certificate.
 - Postfix only keeps port `25` for public inbound mail and internal/external relay.
 - Webmail/API and third-party client sends are first written into Sent, then enter the send queue.
-- The send queue is relayed by a LanQin API background worker to `LANQIN_SMTP_HOST:LANQIN_SMTP_PORT`; failures are audited and retried with backoff.
+- The send queue is relayed by a EOOS API background worker to `EOOS_SMTP_HOST:EOOS_SMTP_PORT`; failures are audited and retried with backoff.
 - v1 supports sending from the user's own mailbox. For send-as, use an enabled alias forwarding source that points to the user's mailbox, or configure `send_as_grants` in the database.
 - If the client later writes its own Sent copy through IMAP APPEND, Maildir sync deduplicates by `Message-ID` within the Sent folder.
 
@@ -250,11 +250,11 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=LanQin996%2FLanQin-Email&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=EOOS996%2FEOOS-Email&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
  </picture>
 </a>
 

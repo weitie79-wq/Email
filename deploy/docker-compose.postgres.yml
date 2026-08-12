@@ -1,14 +1,14 @@
 services:
-  lanqin-email:
+  eoos-email:
     environment:
-      LANQIN_DB_DRIVER: postgres
-      LANQIN_DATABASE_URL: "postgres://${LANQIN_POSTGRES_USER:-lanqin}:${LANQIN_POSTGRES_PASSWORD:?Set LANQIN_POSTGRES_PASSWORD in deploy/.env}@postgres:5432/${LANQIN_POSTGRES_DATABASE:-lanqin}?sslmode=disable"
-      LANQIN_DB_HOST: postgres
-      LANQIN_DB_PORT: "5432"
-      LANQIN_DB_NAME: "${LANQIN_POSTGRES_DATABASE:-lanqin}"
-      LANQIN_DB_USER: "${LANQIN_POSTGRES_USER:-lanqin}"
-      LANQIN_DB_PASSWORD: "${LANQIN_POSTGRES_PASSWORD:?Set LANQIN_POSTGRES_PASSWORD in deploy/.env}"
-      LANQIN_DB_SSLMODE: disable
+      EOOS_DB_DRIVER: postgres
+      EOOS_DATABASE_URL: "postgres://${EOOS_POSTGRES_USER:-eoos}:${EOOS_POSTGRES_PASSWORD:?Set EOOS_POSTGRES_PASSWORD in deploy/.env}@postgres:5432/${EOOS_POSTGRES_DATABASE:-eoos}?sslmode=disable"
+      EOOS_DB_HOST: postgres
+      EOOS_DB_PORT: "5432"
+      EOOS_DB_NAME: "${EOOS_POSTGRES_DATABASE:-eoos}"
+      EOOS_DB_USER: "${EOOS_POSTGRES_USER:-eoos}"
+      EOOS_DB_PASSWORD: "${EOOS_POSTGRES_PASSWORD:?Set EOOS_POSTGRES_PASSWORD in deploy/.env}"
+      EOOS_DB_SSLMODE: disable
     depends_on:
       postgres:
         condition: service_healthy
@@ -16,14 +16,14 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: "${LANQIN_POSTGRES_DATABASE:-lanqin}"
+      POSTGRES_DB: "${EOOS_POSTGRES_DATABASE:-eoos}"
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "${LANQIN_POSTGRES_ADMIN_PASSWORD:?Set LANQIN_POSTGRES_ADMIN_PASSWORD in deploy/.env}"
-      LANQIN_POSTGRES_APP_USER: "${LANQIN_POSTGRES_USER:-lanqin}"
-      LANQIN_POSTGRES_APP_PASSWORD: "${LANQIN_POSTGRES_PASSWORD:?Set LANQIN_POSTGRES_PASSWORD in deploy/.env}"
+      POSTGRES_PASSWORD: "${EOOS_POSTGRES_ADMIN_PASSWORD:?Set EOOS_POSTGRES_ADMIN_PASSWORD in deploy/.env}"
+      EOOS_POSTGRES_APP_USER: "${EOOS_POSTGRES_USER:-eoos}"
+      EOOS_POSTGRES_APP_PASSWORD: "${EOOS_POSTGRES_PASSWORD:?Set EOOS_POSTGRES_PASSWORD in deploy/.env}"
     volumes:
-      - lanqin-postgres-data:/var/lib/postgresql/data
-      - ./postgres/init-app-user.sh:/docker-entrypoint-initdb.d/10-lanqin-app-user.sh:ro
+      - eoos-postgres-data:/var/lib/postgresql/data
+      - ./postgres/init-app-user.sh:/docker-entrypoint-initdb.d/10-eoos-app-user.sh:ro
     healthcheck:
       test:
         - CMD-SHELL
@@ -35,4 +35,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  lanqin-postgres-data:
+  eoos-postgres-data:

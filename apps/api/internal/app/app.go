@@ -927,7 +927,7 @@ func (a *App) migratePermissionGroupLimits(ctx context.Context) error {
 }
 
 // migrateLegacyBootstrapMailbox removes mailboxes created by an older version of seed()
-// that implicitly created an admin mailbox with display_name "LanQin Admin".
+// that implicitly created an admin mailbox with display_name "EOOS Admin".
 // Current seed() creates mailboxes with display_name = admin email, so this migration
 // has no effect on fresh installs. It only cleans up after upgrades from pre-v1.0 schema.
 func (a *App) migrateLegacyBootstrapMailbox(ctx context.Context) error {
@@ -940,7 +940,7 @@ func (a *App) migrateLegacyBootstrapMailbox(ctx context.Context) error {
 		FROM mailboxes mb
 		JOIN users u ON u.id=mb.user_id
 		WHERE mb.address=?
-		  AND mb.display_name='LanQin Admin'
+		  AND mb.display_name='EOOS Admin'
 		  AND u.email=?
 		  AND u.role='admin'`, adminEmail, adminEmail)
 	if err != nil {
@@ -1285,7 +1285,7 @@ func (a *App) seed(ctx context.Context) error {
 			return err
 		}
 		adminPassword = base64.RawURLEncoding.EncodeToString(buf)
-		a.log.Warn("LANQIN_ADMIN_PASSWORD not set; generated random password", "password", adminPassword)
+		a.log.Warn("EOOS_ADMIN_PASSWORD not set; generated random password", "password", adminPassword)
 	}
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(adminPassword), bcrypt.DefaultCost)
 	if err != nil {
@@ -1298,10 +1298,10 @@ func (a *App) seed(ctx context.Context) error {
 		return errors.New("invalid admin email")
 	}
 	if _, err := a.db.ExecContext(ctx, `INSERT INTO users(id,email,display_name,role,password_hash,disabled,created_at,updated_at)
-		VALUES(?,?,?,?,?,?,?,?)`, userID, adminEmail, "LanQin Admin", "admin", string(passwordHash), 0, now, now); err != nil {
+		VALUES(?,?,?,?,?,?,?,?)`, userID, adminEmail, "EOOS Admin", "admin", string(passwordHash), 0, now, now); err != nil {
 		return err
 	}
-	a.log.Warn("created default administrator; change LANQIN_ADMIN_PASSWORD in production", "email", adminEmail)
+	a.log.Warn("created default administrator; change EOOS_ADMIN_PASSWORD in production", "email", adminEmail)
 
 	// Create domain from admin email
 	parts := strings.SplitN(adminEmail, "@", 2)
@@ -1347,7 +1347,7 @@ func (a *App) createDomainTx(ctx context.Context, tx *sql.Tx, name string) (stri
 	if name == "" || !strings.Contains(name, ".") {
 		return "", errors.New("invalid domain")
 	}
-	selector := "lanqin"
+	selector := "eoos"
 	publicKey, privateKey, err := generateDKIMMaterial()
 	if err != nil {
 		return "", err
@@ -1459,13 +1459,13 @@ func (a *App) seedWelcomeMessage(ctx context.Context, mailboxID string) error {
 		return err
 	}
 	now := a.now().UTC()
-	subject := "欢迎使用 LanQin Email"
+	subject := "欢迎使用 EOOS Email"
 	bodyText := "你的自建邮箱 Webmail 已经初始化完成。请尽快修改默认管理员密码，并配置 MX/SPF/DKIM/DMARC。"
 	bodyHTML := "<p>你的自建邮箱 Webmail 已经初始化完成。</p><p>请尽快修改默认管理员密码，并配置 MX/SPF/DKIM/DMARC。</p>"
 	if tpl, err := a.mailTemplate(ctx, "welcome"); err == nil {
 		rendered := renderMailTemplate(tpl, templateRenderData{
 			To:             a.cfg.AdminEmail,
-			From:           "system@lanqin.local",
+			From:           "system@eoos.local",
 			PublicHostname: a.cfg.PublicHostname,
 			PublicBaseURL:  a.cfg.PublicBaseURL,
 			Time:           now,
@@ -1476,10 +1476,10 @@ func (a *App) seedWelcomeMessage(ctx context.Context, mailboxID string) error {
 		MailboxID:  mailboxID,
 		FolderID:   folderID,
 		MessageUID: newID("uid"),
-		MessageID:  fmt.Sprintf("<%s@lanqin.local>", newID("msg")),
+		MessageID:  fmt.Sprintf("<%s@eoos.local>", newID("msg")),
 		Subject:    subject,
-		From:       "system@lanqin.local",
-		FromName:   "LanQin Email",
+		From:       "system@eoos.local",
+		FromName:   "EOOS Email",
 		To:         []string{a.cfg.AdminEmail},
 		SentAt:     now,
 		ReceivedAt: now,

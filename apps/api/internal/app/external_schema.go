@@ -141,7 +141,7 @@ func lockExternalSchema(ctx context.Context, conn *sql.Conn, driver string) (fun
 		}, nil
 	case databaseDriverMySQL:
 		var acquired sql.NullInt64
-		if err := conn.QueryRowContext(ctx, `SELECT GET_LOCK('lanqin_email_external_schema_v1', 30)`).Scan(&acquired); err != nil {
+		if err := conn.QueryRowContext(ctx, `SELECT GET_LOCK('eoos_email_external_schema_v1', 30)`).Scan(&acquired); err != nil {
 			return nil, fmt.Errorf("external schema: acquire MySQL lock: %w", err)
 		}
 		if !acquired.Valid || acquired.Int64 != 1 {
@@ -150,7 +150,7 @@ func lockExternalSchema(ctx context.Context, conn *sql.Conn, driver string) (fun
 		return func() {
 			unlockCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			_, _ = conn.ExecContext(unlockCtx, `SELECT RELEASE_LOCK('lanqin_email_external_schema_v1')`)
+			_, _ = conn.ExecContext(unlockCtx, `SELECT RELEASE_LOCK('eoos_email_external_schema_v1')`)
 		}, nil
 	default:
 		return nil, fmt.Errorf("external schema: unsupported database driver %q", driver)
@@ -193,7 +193,7 @@ func validateExternalSchema(ctx context.Context, conn *sql.Conn, actual []string
 	sort.Strings(actual)
 	if strings.Join(actual, "\x00") != strings.Join(expected, "\x00") {
 		return fmt.Errorf(
-			"external schema: database is not empty and does not match LanQin schema v%d; use a new empty database or run an explicit import (found tables: %s)",
+			"external schema: database is not empty and does not match EOOS schema v%d; use a new empty database or run an explicit import (found tables: %s)",
 			externalSchemaVersion,
 			strings.Join(actual, ", "),
 		)

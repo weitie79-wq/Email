@@ -16,10 +16,10 @@ fi
 if [ ! -f .env ]; then
   cp .env.example .env
   echo "已生成 deploy/.env。请先编辑域名和管理员密码："
-  echo "  LANQIN_PUBLIC_HOSTNAME"
-  echo "  LANQIN_PUBLIC_BASE_URL"
-  echo "  LANQIN_ADMIN_EMAIL"
-  echo "  LANQIN_ADMIN_PASSWORD"
+  echo "  EOOS_PUBLIC_HOSTNAME"
+  echo "  EOOS_PUBLIC_BASE_URL"
+  echo "  EOOS_ADMIN_EMAIL"
+  echo "  EOOS_ADMIN_PASSWORD"
   echo
   echo "编辑完成后再次执行：./install.sh"
   exit 0
@@ -31,4 +31,4 @@ docker compose pull
 echo "启动服务..."
 docker compose up -d
 
-echo "完成。查看日志：docker compose logs -f lanqin-email"
+echo "完成。查看日志：docker compose logs -f eoos-email"

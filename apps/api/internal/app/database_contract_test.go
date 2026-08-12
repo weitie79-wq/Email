@@ -16,8 +16,8 @@ func TestExternalDatabaseContract(t *testing.T) {
 		driver string
 		dsnEnv string
 	}{
-		{name: "postgres", driver: databaseDriverPostgres, dsnEnv: "LANQIN_TEST_POSTGRES_DSN"},
-		{name: "mysql", driver: databaseDriverMySQL, dsnEnv: "LANQIN_TEST_MYSQL_DSN"},
+		{name: "postgres", driver: databaseDriverPostgres, dsnEnv: "EOOS_TEST_POSTGRES_DSN"},
+		{name: "mysql", driver: databaseDriverMySQL, dsnEnv: "EOOS_TEST_MYSQL_DSN"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

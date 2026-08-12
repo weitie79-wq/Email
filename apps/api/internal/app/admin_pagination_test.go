@@ -86,7 +86,7 @@ func newAdminPaginationTest(t *testing.T) (*App, *testClient, *Mailbox) {
 	server := httptest.NewServer(a.Router())
 	t.Cleanup(server.Close)
 	client := &testClient{t: t, server: server}
-	if code := client.do("POST", "/api/auth/login", map[string]string{"email": "admin@lanqin.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
+	if code := client.do("POST", "/api/auth/login", map[string]string{"email": "admin@eoos.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
 		t.Fatalf("login code=%d", code)
 	}
 	_, mailbox := defaultAdminUserAndMailbox(t, a)
@@ -99,7 +99,7 @@ func insertAdminPaginationMessages(t *testing.T, a *App, mailboxID, folderID str
 	recipient := "unregistered@example.test"
 	if mailboxID != "" {
 		mailboxValue = mailboxID
-		recipient = "admin@lanqin.local"
+		recipient = "admin@eoos.local"
 	}
 	if folderID != "" {
 		folderValue = folderID

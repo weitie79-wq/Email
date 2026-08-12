@@ -870,7 +870,7 @@ func (a *App) decryptExternalIMAPPassword(ciphertext string) (string, error) {
 func (a *App) externalIMAPKey() ([]byte, error) {
 	secret := strings.TrimSpace(a.cfg.ExternalIMAPSecretKey)
 	if secret == "" {
-		return nil, errors.New("LANQIN_EXTERNAL_IMAP_SECRET_KEY is required")
+		return nil, errors.New("EOOS_EXTERNAL_IMAP_SECRET_KEY is required")
 	}
 	sum := sha256.Sum256([]byte(secret))
 	return sum[:], nil

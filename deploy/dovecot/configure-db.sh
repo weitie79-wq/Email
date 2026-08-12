@@ -1,18 +1,18 @@
 #!/bin/sh
 set -eu
 
-: "${LANQIN_DB_DRIVER:=sqlite}"
-: "${LANQIN_DB_HOST:=}"
-: "${LANQIN_DB_PORT:=}"
-: "${LANQIN_DB_NAME:=}"
-: "${LANQIN_DB_USER:=}"
-: "${LANQIN_DB_PASSWORD:=}"
+: "${EOOS_DB_DRIVER:=sqlite}"
+: "${EOOS_DB_HOST:=}"
+: "${EOOS_DB_PORT:=}"
+: "${EOOS_DB_NAME:=}"
+: "${EOOS_DB_USER:=}"
+: "${EOOS_DB_PASSWORD:=}"
 
 require_external_config() {
-	for name in LANQIN_DB_HOST LANQIN_DB_PORT LANQIN_DB_NAME LANQIN_DB_USER LANQIN_DB_PASSWORD; do
+	for name in EOOS_DB_HOST EOOS_DB_PORT EOOS_DB_NAME EOOS_DB_USER EOOS_DB_PASSWORD; do
 		eval "value=\${$name:-}"
 		if [ -z "$value" ]; then
-			echo "error: $name is required for LANQIN_DB_DRIVER=$LANQIN_DB_DRIVER" >&2
+			echo "error: $name is required for EOOS_DB_DRIVER=$EOOS_DB_DRIVER" >&2
 			exit 1
 		fi
 		clean="$(printf '%s' "$value" | tr -d '\r\n')"
@@ -36,9 +36,9 @@ write_config() {
 	{
 		printf 'driver = %s\n' "$driver"
 		if [ "$driver" = sqlite ]; then
-			printf 'connect = /data/lanqin.db\n'
+			printf 'connect = /data/eoos.db\n'
 		else
-			printf 'connect = host=%s port=%s dbname=%s user=%s password=%s\n' "$LANQIN_DB_HOST" "$LANQIN_DB_PORT" "$LANQIN_DB_NAME" "$LANQIN_DB_USER" "$LANQIN_DB_PASSWORD"
+			printf 'connect = host=%s port=%s dbname=%s user=%s password=%s\n' "$EOOS_DB_HOST" "$EOOS_DB_PORT" "$EOOS_DB_NAME" "$EOOS_DB_USER" "$EOOS_DB_PASSWORD"
 		fi
 		printf 'default_pass_scheme = BLF-CRYPT\n'
 		printf 'password_query = %s\n' "$password_query"
@@ -47,7 +47,7 @@ write_config() {
 	chmod 0600 /etc/dovecot/dovecot-sql.conf.ext
 }
 
-case "$(printf '%s' "$LANQIN_DB_DRIVER" | tr '[:upper:]' '[:lower:]')" in
+case "$(printf '%s' "$EOOS_DB_DRIVER" | tr '[:upper:]' '[:lower:]')" in
 '' | sqlite | sqlite3)
 	write_config sqlite \
 		"SELECT address AS user, password_hash AS password FROM mailboxes WHERE lower(address)=lower('%u') AND status='active'" \
@@ -66,7 +66,7 @@ pg | pgsql | postgres | postgresql)
 		"SELECT '/var/mail/vhosts/' || d.name || '/' || m.local_part AS home,'maildir:/var/mail/vhosts/' || d.name || '/' || m.local_part || '/Maildir' AS mail,5000 AS uid,5000 AS gid,'*:storage=' || CAST(m.quota_mb AS TEXT) || 'M' AS quota_rule FROM mailboxes m JOIN domains d ON d.id=m.domain_id WHERE d.name=lower(split_part('%u','@',2)) AND m.local_part=lower(split_part(split_part('%u','@',1),'+',1)) AND m.status='active' AND d.status='active' UNION SELECT '/var/mail/vhosts/' || lower(split_part('%u','@',2)) || '/__unregistered__' AS home,'maildir:/var/mail/vhosts/' || lower(split_part('%u','@',2)) || '/__unregistered__/Maildir' AS mail,5000 AS uid,5000 AS gid,'*:storage=1024M' AS quota_rule WHERE EXISTS (SELECT 1 FROM system_settings WHERE key='catchAllEnabled' AND value='true') AND EXISTS (SELECT 1 FROM domains WHERE name=lower(split_part('%u','@',2)) AND status='active') AND NOT EXISTS (SELECT 1 FROM mailboxes m JOIN domains d ON d.id=m.domain_id WHERE d.name=lower(split_part('%u','@',2)) AND m.local_part=lower(split_part(split_part('%u','@',1),'+',1)) AND m.status='active')"
 	;;
 *)
-	echo "error: unsupported LANQIN_DB_DRIVER=$LANQIN_DB_DRIVER" >&2
+	echo "error: unsupported EOOS_DB_DRIVER=$EOOS_DB_DRIVER" >&2
 	exit 1
 	;;
 esac

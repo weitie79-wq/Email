@@ -8,7 +8,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 COPY apps/api ./
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux go build -trimpath -o /out/lanqin-api ./cmd/server
+    CGO_ENABLED=0 GOOS=linux go build -trimpath -o /out/eoos-api ./cmd/server
 
 FROM debian:bookworm-slim
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -16,6 +16,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update && apt-get install -y --no-install-recommends ca-certificates tzdata
 WORKDIR /app
-COPY --from=build /out/lanqin-api /usr/local/bin/lanqin-api
+COPY --from=build /out/eoos-api /usr/local/bin/eoos-api
 EXPOSE 8080 465 587
-CMD ["lanqin-api"]
+CMD ["eoos-api"]

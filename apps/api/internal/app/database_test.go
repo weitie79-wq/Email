@@ -33,21 +33,21 @@ func TestIsUniqueViolation(t *testing.T) {
 }
 
 func TestLoadConfigDatabaseSettings(t *testing.T) {
-	t.Setenv("LANQIN_DB_DRIVER", "POSTGRESQL")
-	t.Setenv("LANQIN_DB_DSN", "postgres://fallback")
-	t.Setenv("LANQIN_DATABASE_URL", "postgres://preferred")
-	t.Setenv("LANQIN_DB_MAX_OPEN_CONNS", "42")
-	t.Setenv("LANQIN_DB_MAX_IDLE_CONNS", "12")
-	t.Setenv("LANQIN_DB_CONN_MAX_LIFETIME_SECONDS", "900")
-	t.Setenv("LANQIN_DB_CONN_MAX_IDLE_TIME_SECONDS", "120")
-	t.Setenv("LANQIN_DB_CONNECT_TIMEOUT_SECONDS", "7")
+	t.Setenv("EOOS_DB_DRIVER", "POSTGRESQL")
+	t.Setenv("EOOS_DB_DSN", "postgres://fallback")
+	t.Setenv("EOOS_DATABASE_URL", "postgres://preferred")
+	t.Setenv("EOOS_DB_MAX_OPEN_CONNS", "42")
+	t.Setenv("EOOS_DB_MAX_IDLE_CONNS", "12")
+	t.Setenv("EOOS_DB_CONN_MAX_LIFETIME_SECONDS", "900")
+	t.Setenv("EOOS_DB_CONN_MAX_IDLE_TIME_SECONDS", "120")
+	t.Setenv("EOOS_DB_CONNECT_TIMEOUT_SECONDS", "7")
 
 	cfg := LoadConfig()
 	if cfg.DBDriver != "postgresql" {
 		t.Fatalf("DBDriver = %q, want postgres environment value", cfg.DBDriver)
 	}
 	if cfg.DBDSN != "postgres://preferred" {
-		t.Fatalf("DBDSN = %q, want LANQIN_DATABASE_URL precedence", cfg.DBDSN)
+		t.Fatalf("DBDSN = %q, want EOOS_DATABASE_URL precedence", cfg.DBDSN)
 	}
 	if cfg.DBMaxOpenConns != 42 || cfg.DBMaxIdleConns != 12 {
 		t.Fatalf("pool sizes = %d/%d, want 42/12", cfg.DBMaxOpenConns, cfg.DBMaxIdleConns)

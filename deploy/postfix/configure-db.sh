@@ -1,12 +1,12 @@
 #!/bin/sh
 set -eu
 
-: "${LANQIN_DB_DRIVER:=sqlite}"
-: "${LANQIN_DB_HOST:=}"
-: "${LANQIN_DB_PORT:=}"
-: "${LANQIN_DB_NAME:=}"
-: "${LANQIN_DB_USER:=}"
-: "${LANQIN_DB_PASSWORD:=}"
+: "${EOOS_DB_DRIVER:=sqlite}"
+: "${EOOS_DB_HOST:=}"
+: "${EOOS_DB_PORT:=}"
+: "${EOOS_DB_NAME:=}"
+: "${EOOS_DB_USER:=}"
+: "${EOOS_DB_PASSWORD:=}"
 
 reject_newlines() {
 	clean="$(printf '%s' "$2" | tr -d '\r\n')"
@@ -17,10 +17,10 @@ reject_newlines() {
 }
 
 require_external_config() {
-	for name in LANQIN_DB_HOST LANQIN_DB_PORT LANQIN_DB_NAME LANQIN_DB_USER LANQIN_DB_PASSWORD; do
+	for name in EOOS_DB_HOST EOOS_DB_PORT EOOS_DB_NAME EOOS_DB_USER EOOS_DB_PASSWORD; do
 		eval "value=\${$name:-}"
 		if [ -z "$value" ]; then
-			echo "error: $name is required for LANQIN_DB_DRIVER=$LANQIN_DB_DRIVER" >&2
+			echo "error: $name is required for EOOS_DB_DRIVER=$EOOS_DB_DRIVER" >&2
 			exit 1
 		fi
 		reject_newlines "$name" "$value"
@@ -31,10 +31,10 @@ write_mysql_map() {
 	file="$1"
 	query="$2"
 	{
-		printf 'user = %s\n' "$LANQIN_DB_USER"
-		printf 'password = %s\n' "$LANQIN_DB_PASSWORD"
-		printf 'hosts = %s:%s\n' "$LANQIN_DB_HOST" "$LANQIN_DB_PORT"
-		printf 'dbname = %s\n' "$LANQIN_DB_NAME"
+		printf 'user = %s\n' "$EOOS_DB_USER"
+		printf 'password = %s\n' "$EOOS_DB_PASSWORD"
+		printf 'hosts = %s:%s\n' "$EOOS_DB_HOST" "$EOOS_DB_PORT"
+		printf 'dbname = %s\n' "$EOOS_DB_NAME"
 		printf 'query = %s\n' "$query"
 	} >"$file"
 	chown root:postfix "$file"
@@ -45,17 +45,17 @@ write_pgsql_map() {
 	file="$1"
 	query="$2"
 	{
-		printf 'user = %s\n' "$LANQIN_DB_USER"
-		printf 'password = %s\n' "$LANQIN_DB_PASSWORD"
-		printf 'hosts = %s:%s\n' "$LANQIN_DB_HOST" "$LANQIN_DB_PORT"
-		printf 'dbname = %s\n' "$LANQIN_DB_NAME"
+		printf 'user = %s\n' "$EOOS_DB_USER"
+		printf 'password = %s\n' "$EOOS_DB_PASSWORD"
+		printf 'hosts = %s:%s\n' "$EOOS_DB_HOST" "$EOOS_DB_PORT"
+		printf 'dbname = %s\n' "$EOOS_DB_NAME"
 		printf 'query = %s\n' "$query"
 	} >"$file"
 	chown root:postfix "$file"
 	chmod 0640 "$file"
 }
 
-case "$(printf '%s' "$LANQIN_DB_DRIVER" | tr '[:upper:]' '[:lower:]')" in
+case "$(printf '%s' "$EOOS_DB_DRIVER" | tr '[:upper:]' '[:lower:]')" in
 '' | sqlite | sqlite3)
 	postconf -e 'virtual_mailbox_domains = sqlite:/etc/postfix/sqlite-domains.cf'
 	postconf -e 'virtual_mailbox_maps = sqlite:/etc/postfix/sqlite-mailboxes.cf'
@@ -80,7 +80,7 @@ pg | pgsql | postgres | postgresql)
 	postconf -e 'virtual_alias_maps = pgsql:/etc/postfix/pgsql-aliases.cf'
 	;;
 *)
-	echo "error: unsupported LANQIN_DB_DRIVER=$LANQIN_DB_DRIVER" >&2
+	echo "error: unsupported EOOS_DB_DRIVER=$EOOS_DB_DRIVER" >&2
 	exit 1
 	;;
 esac

@@ -1,4 +1,4 @@
-# LanQin Email Docker 部署说明
+# EOOS Email Docker 部署说明
 
 ## 最简单部署：单容器镜像版
 
@@ -7,7 +7,7 @@
 ```bash
 cd deploy
 cp .env.example .env
-# 修改 LANQIN_PUBLIC_HOSTNAME / LANQIN_PUBLIC_BASE_URL / LANQIN_ADMIN_EMAIL / LANQIN_ADMIN_PASSWORD
+# 修改 EOOS_PUBLIC_HOSTNAME / EOOS_PUBLIC_BASE_URL / EOOS_ADMIN_EMAIL / EOOS_ADMIN_PASSWORD
 docker compose pull
 docker compose up -d
 ```
@@ -24,7 +24,7 @@ bash install.sh
 默认只启动一个业务容器：
 
 ```text
-lanqin-email
+eoos-email
 ```
 
 容器内部包含：
@@ -40,7 +40,7 @@ lanqin-email
 
 ```bash
 # 查看日志
-docker compose logs -f lanqin-email
+docker compose logs -f eoos-email
 
 # 更新镜像并重启
 docker compose pull
@@ -55,12 +55,12 @@ docker compose down
 默认镜像：
 
 ```text
-ghcr.io/lanqin996/lanqin-email:latest
-ghcr.io/lanqin996/lanqin-email-api:latest
-ghcr.io/lanqin996/lanqin-email-web:latest
-ghcr.io/lanqin996/lanqin-email-postfix:latest
-ghcr.io/lanqin996/lanqin-email-dovecot:latest
-ghcr.io/lanqin996/lanqin-email-rspamd:latest
+ghcr.io/eoos996/eoos-email:latest
+ghcr.io/eoos996/eoos-email-api:latest
+ghcr.io/eoos996/eoos-email-web:latest
+ghcr.io/eoos996/eoos-email-postfix:latest
+ghcr.io/eoos996/eoos-email-dovecot:latest
+ghcr.io/eoos996/eoos-email-rspamd:latest
 ```
 
 如果拉取时报：
@@ -121,36 +121,36 @@ docker compose -f docker-compose.stack.yml -f docker-compose.stack.build.yml up 
 
 ## 邮件服务边界
 
-- Postfix 读取 `/data/lanqin.db` 中的 `domains`、`mailboxes`、`aliases`。
+- Postfix 读取 `/data/eoos.db` 中的 `domains`、`mailboxes`、`aliases`。
 - Dovecot 读取同一个 SQLite 数据库进行邮箱认证，并使用 `/var/mail/vhosts` 作为 Maildir 根目录。
 - 第三方客户端可使用 IMAP SSL `993`、POP3 SSL `995`、SMTP SSL `465` 或 Submission `587`。
 - Rspamd 通过 milter 接入 Postfix，负责 DKIM 签名和垃圾邮件标记。
 - Rspamd 会周期性从 SQLite 导出域名 DKIM 私钥到容器内 `/var/lib/rspamd/dkim`。
 - Go API 是 Webmail 和管理后台入口；浏览器不直接连接 SMTP/IMAP/POP3。
-- Go API 会读取 `LANQIN_MAILDIR_ROOT=/var/mail/vhosts`，周期扫描 Maildir，把 Postfix/Dovecot 入站邮件同步成 Webmail 索引。
-- 第三方客户端可通过 LanQin API 提供的 SMTP `465/587` 发信；Webmail/API 和第三方客户端的“已发送”都由 API 写入，外发投递进入发送队列并由 API worker relay/retry，客户端后续 IMAP APPEND 到 Sent 会按 `Message-ID` 去重。
-- 用户可在个人邮箱管理中接入外部 IMAP 账号；默认关闭，可在后台“系统设置 > 外部 IMAP”开启并配置密钥/OAuth。本地存储模式会同步到 LanQin，远端直连模式每次从远端读取。启用前必须配置外部 IMAP 密码加密密钥，默认不允许连接 localhost / 内网 / link-local IMAP 主机。Gmail / Microsoft 365 / Outlook OAuth2 需要在对应控制台配置回调地址：`/api/external-imap-oauth/gmail/callback` 或 `/api/external-imap-oauth/outlook/callback`。
+- Go API 会读取 `EOOS_MAILDIR_ROOT=/var/mail/vhosts`，周期扫描 Maildir，把 Postfix/Dovecot 入站邮件同步成 Webmail 索引。
+- 第三方客户端可通过 EOOS API 提供的 SMTP `465/587` 发信；Webmail/API 和第三方客户端的“已发送”都由 API 写入，外发投递进入发送队列并由 API worker relay/retry，客户端后续 IMAP APPEND 到 Sent 会按 `Message-ID` 去重。
+- 用户可在个人邮箱管理中接入外部 IMAP 账号；默认关闭，可在后台“系统设置 > 外部 IMAP”开启并配置密钥/OAuth。本地存储模式会同步到 EOOS，远端直连模式每次从远端读取。启用前必须配置外部 IMAP 密码加密密钥，默认不允许连接 localhost / 内网 / link-local IMAP 主机。Gmail / Microsoft 365 / Outlook OAuth2 需要在对应控制台配置回调地址：`/api/external-imap-oauth/gmail/callback` 或 `/api/external-imap-oauth/outlook/callback`。
 - send-as v1 支持本人邮箱、启用的别名转发 source 指向本人邮箱，或数据库表 `send_as_grants` 中显式授权的地址。
 
 ## 邮件客户端 TLS 证书
 
 Web 站点可以由宿主机 Nginx / 宝塔反代到容器 `80`，但 SMTP/IMAP/POP3 端口不会使用 Web 反代的证书。
-如果第三方客户端连接 `993/995` 时提示证书是 `localhost`，说明 Dovecot 仍在使用容器自带的测试证书。LanQin API 的 SMTP `465/587` submission 不会使用自签测试证书；启用前必须配置可读的真实证书。
+如果第三方客户端连接 `993/995` 时提示证书是 `localhost`，说明 Dovecot 仍在使用容器自带的测试证书。EOOS API 的 SMTP `465/587` submission 不会使用自签测试证书；启用前必须配置可读的真实证书。
 
 生产环境请把域名证书挂载进容器，并在 `.env` 指向证书文件：
 
 ```env
-LANQIN_TLS_CERT_FILE=/certs/fullchain.pem
-LANQIN_TLS_KEY_FILE=/certs/privkey.pem
-LANQIN_SUBMISSION_ADDR=:587
-LANQIN_SUBMISSION_TLS_ADDR=:465
+EOOS_TLS_CERT_FILE=/certs/fullchain.pem
+EOOS_TLS_KEY_FILE=/certs/privkey.pem
+EOOS_SUBMISSION_ADDR=:587
+EOOS_SUBMISSION_TLS_ADDR=:465
 ```
 
 单容器示例：
 
 ```yaml
 services:
-  lanqin-email:
+  eoos-email:
     volumes:
       - ./data:/data
       - ./mail:/var/mail/vhosts
@@ -158,7 +158,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
 ```
 
-证书域名必须覆盖 `LANQIN_PUBLIC_HOSTNAME`。更新后执行：
+证书域名必须覆盖 `EOOS_PUBLIC_HOSTNAME`。更新后执行：
 
 ```bash
 docker compose up -d --force-recreate
@@ -169,15 +169,15 @@ docker compose up -d --force-recreate
 单容器部署时，Webmail 发信默认提交给同容器内的 Postfix：
 
 ```env
-LANQIN_SMTP_HOST=127.0.0.1
-LANQIN_SMTP_PORT=25
-LANQIN_SMTP_REQUIRE_TLS=false
+EOOS_SMTP_HOST=127.0.0.1
+EOOS_SMTP_PORT=25
+EOOS_SMTP_REQUIRE_TLS=false
 ```
 
 如需把上游服务商或 DSN 处理器的最终送达、退信、投诉、拒收事件写回开放 API，请设置：
 
 ```env
-LANQIN_DELIVERY_WEBHOOK_SECRET=replace-with-a-long-random-secret
+EOOS_DELIVERY_WEBHOOK_SECRET=replace-with-a-long-random-secret
 ```
 
 回调地址、签名算法和事件格式见仓库中的 `docs/API.md` 与 `docs/openapi.json`。该接口未配置密钥时返回 `503`。
@@ -185,24 +185,24 @@ LANQIN_DELIVERY_WEBHOOK_SECRET=replace-with-a-long-random-secret
 如需把状态变化主动推送到集成方，可额外设置：
 
 ```env
-LANQIN_STATUS_WEBHOOK_URL=https://integration.example.com/hooks/lanqin
-LANQIN_STATUS_WEBHOOK_SECRET=replace-with-another-long-random-secret
-LANQIN_STATUS_WEBHOOK_ALLOW_PRIVATE_HOSTS=false
+EOOS_STATUS_WEBHOOK_URL=https://integration.example.com/hooks/eoos
+EOOS_STATUS_WEBHOOK_SECRET=replace-with-another-long-random-secret
+EOOS_STATUS_WEBHOOK_ALLOW_PRIVATE_HOSTS=false
 ```
 
-事件先写入数据库 outbox，再由后台 worker 投递；非 2xx 响应会按退避策略重试，最多 10 次。默认只允许公网 HTTPS，禁止重定向、URL 用户信息和私网/本机目标。只有可信内网或本地测试才应开启 `LANQIN_STATUS_WEBHOOK_ALLOW_PRIVATE_HOSTS`。
+事件先写入数据库 outbox，再由后台 worker 投递；非 2xx 响应会按退避策略重试，最多 10 次。默认只允许公网 HTTPS，禁止重定向、URL 用户信息和私网/本机目标。只有可信内网或本地测试才应开启 `EOOS_STATUS_WEBHOOK_ALLOW_PRIVATE_HOSTS`。
 
-Split stack 使用 `docker-compose.stack.yml` 时，API 容器默认会把 `LANQIN_SMTP_HOST` 覆盖为 `postfix`，让 Webmail 和 SMTP 提交都 relay 到 Postfix service。只有改用外部 SMTP 时才需要在 `.env` 明确填写 `LANQIN_STACK_SMTP_HOST` / `LANQIN_STACK_SMTP_PORT`。
+Split stack 使用 `docker-compose.stack.yml` 时，API 容器默认会把 `EOOS_SMTP_HOST` 覆盖为 `postfix`，让 Webmail 和 SMTP 提交都 relay 到 Postfix service。只有改用外部 SMTP 时才需要在 `.env` 明确填写 `EOOS_STACK_SMTP_HOST` / `EOOS_STACK_SMTP_PORT`。
 
 如果发送队列里出现 relay 失败，通常是 Postfix 会话被中断或外部 SMTP 配置错误。优先检查：
 
 ```bash
-docker compose exec lanqin-email supervisorctl status
-docker compose exec lanqin-email postconf -M smtp/inet
-# SMTP 提交 465/587 由 LanQin API 提供，不再由 Postfix 监听。
-docker compose exec lanqin-email sqlite3 /data/lanqin.db "select key,value from system_settings where key like 'smtp%' order by key;"
-docker compose exec lanqin-email sqlite3 /data/lanqin.db "select status,attempt_count,last_error from send_queue order by created_at desc limit 10;"
-docker compose logs --tail=200 lanqin-email
+docker compose exec eoos-email supervisorctl status
+docker compose exec eoos-email postconf -M smtp/inet
+# SMTP 提交 465/587 由 EOOS API 提供，不再由 Postfix 监听。
+docker compose exec eoos-email sqlite3 /data/eoos.db "select key,value from system_settings where key like 'smtp%' order by key;"
+docker compose exec eoos-email sqlite3 /data/eoos.db "select status,attempt_count,last_error from send_queue order by created_at desc limit 10;"
+docker compose logs --tail=200 eoos-email
 ```
 
 确认后台“系统设置”里没有把本机 Postfix 的 `SMTP Require TLS` 打开；本机 `127.0.0.1:25` 必须保持 TLS=false。
@@ -215,19 +215,19 @@ docker compose logs --tail=200 lanqin-email
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml up -d
 ```
 
-MySQL 8.4 部署需要先在 `deploy/.env` 设置 `LANQIN_MYSQL_ROOT_PASSWORD` 和 `LANQIN_MYSQL_PASSWORD`：
+MySQL 8.4 部署需要先在 `deploy/.env` 设置 `EOOS_MYSQL_ROOT_PASSWORD` 和 `EOOS_MYSQL_PASSWORD`：
 
 ```bash
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.mysql.yml up -d
 ```
 
-PostgreSQL 16 部署需要先在 `deploy/.env` 设置 `LANQIN_POSTGRES_ADMIN_PASSWORD` 和 `LANQIN_POSTGRES_PASSWORD`。应用账号不是 PostgreSQL 超级用户；应用密码必须使用字母、数字、点、下划线、波浪线或连字符：
+PostgreSQL 16 部署需要先在 `deploy/.env` 设置 `EOOS_POSTGRES_ADMIN_PASSWORD` 和 `EOOS_POSTGRES_PASSWORD`。应用账号不是 PostgreSQL 超级用户；应用密码必须使用字母、数字、点、下划线、波浪线或连字符：
 
 ```bash
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.postgres.yml up -d
 ```
 
-两种模式都保留单个 `lanqin-email` 主容器，只额外增加一个数据库容器。数据库使用独立 Docker volume，端口默认不暴露到宿主机。首次启动必须使用空数据库，应用不会自动迁移 SQLite 数据；不要同时叠加 MySQL 和 PostgreSQL 两个 override。已有数据库 volume 的账号密码不会因修改 `.env` 自动轮换，应先在数据库内更新密码。
+两种模式都保留单个 `eoos-email` 主容器，只额外增加一个数据库容器。数据库使用独立 Docker volume，端口默认不暴露到宿主机。首次启动必须使用空数据库，应用不会自动迁移 SQLite 数据；不要同时叠加 MySQL 和 PostgreSQL 两个 override。已有数据库 volume 的账号密码不会因修改 `.env` 自动轮换，应先在数据库内更新密码。
 
 ## 生产注意
 

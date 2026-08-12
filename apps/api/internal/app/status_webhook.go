@@ -113,10 +113,10 @@ func (a *App) deliverStatusWebhook(ctx context.Context, eventID string, payload 
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "LanQin-Email-Webhook/1.0")
-	req.Header.Set("X-LanQin-Webhook-Id", eventID)
-	req.Header.Set("X-LanQin-Timestamp", timestamp)
-	req.Header.Set("X-LanQin-Signature", "sha256="+hex.EncodeToString(mac.Sum(nil)))
+	req.Header.Set("User-Agent", "EOOS-Email-Webhook/1.0")
+	req.Header.Set("X-EOOS-Webhook-Id", eventID)
+	req.Header.Set("X-EOOS-Timestamp", timestamp)
+	req.Header.Set("X-EOOS-Signature", "sha256="+hex.EncodeToString(mac.Sum(nil)))
 	client := &http.Client{
 		Timeout:       10 * time.Second,
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
@@ -136,7 +136,7 @@ func (a *App) deliverStatusWebhook(ctx context.Context, eventID string, payload 
 
 func (a *App) validatedStatusWebhookURL(ctx context.Context) (*url.URL, error) {
 	if strings.TrimSpace(a.cfg.StatusWebhookSecret) == "" {
-		return nil, errors.New("LANQIN_STATUS_WEBHOOK_SECRET is required")
+		return nil, errors.New("EOOS_STATUS_WEBHOOK_SECRET is required")
 	}
 	target, err := url.Parse(strings.TrimSpace(a.cfg.StatusWebhookURL))
 	if err != nil || target.Hostname() == "" || target.User != nil || target.Fragment != "" {

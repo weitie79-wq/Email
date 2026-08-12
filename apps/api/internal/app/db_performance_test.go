@@ -126,7 +126,7 @@ func TestAPITokenLastUsedWriteIsThrottled(t *testing.T) {
 	defer ts.Close()
 	admin := &testClient{t: t, server: ts}
 
-	if code := admin.do("POST", "/api/auth/login", map[string]string{"email": "admin@lanqin.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
+	if code := admin.do("POST", "/api/auth/login", map[string]string{"email": "admin@eoos.local", "password": "ChangeMe123!"}, nil); code != http.StatusOK {
 		t.Fatalf("login code=%d", code)
 	}
 	token := createTestAPIToken(t, admin, "last-used-throttle")

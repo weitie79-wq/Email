@@ -1,4 +1,4 @@
-module lanqin-email-api
+module eoos-email-api
 
 go 1.25.0
 

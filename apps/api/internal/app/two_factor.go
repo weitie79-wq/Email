@@ -172,7 +172,7 @@ func (a *App) handleTwoFactorSetup(w http.ResponseWriter, r *http.Request) {
 	}
 	respondJSON(w, http.StatusOK, map[string]any{
 		"secret":     secret,
-		"otpauthUrl": totpProvisioningURI("LanQin Email", current.Email, secret),
+		"otpauthUrl": totpProvisioningURI("EOOS Email", current.Email, secret),
 	})
 }
 

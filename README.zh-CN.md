@@ -1,4 +1,4 @@
-# LanQin Email
+# EOOS Email
 
 [![English](https://img.shields.io/badge/English-README-blue)](./README.md)
 [![简体中文](https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-README-green)](./README.zh-CN.md)
@@ -12,7 +12,7 @@
 ![Dovecot](https://img.shields.io/badge/Dovecot-4B8BBE)
 ![Rspamd](https://img.shields.io/badge/Rspamd-FFD045)
 
-LanQin Email 是一个自建邮箱 Webmail 全栈方案：前端使用 React + TypeScript + shadcn/ui，后端使用 Go + SQLite，部署时可用单容器集成 API、Web、Nginx、Postfix、Dovecot、Rspamd。
+EOOS Email 是一个自建邮箱 Webmail 全栈方案：前端使用 React + TypeScript + shadcn/ui，后端使用 Go + SQLite，部署时可用单容器集成 API、Web、Nginx、Postfix、Dovecot、Rspamd。
 
 交流群组：[Telegram 群组](https://t.me/+EhII7MSyi3QwNDQ5)
 
@@ -90,7 +90,7 @@ pnpm run dev
 - Web：`http://localhost:5173`
 - API：`http://localhost:8080`
 
-默认管理员邮箱为 `admin@lanqin.local`。建议开发时显式设置 `LANQIN_ADMIN_PASSWORD`；如果未设置，后端首次启动会随机生成密码并输出到日志。
+默认管理员邮箱为 `admin@eoos.local`。建议开发时显式设置 `EOOS_ADMIN_PASSWORD`；如果未设置，后端首次启动会随机生成密码并输出到日志。
 
 ### Docker 部署（单容器）
 
@@ -108,7 +108,7 @@ docker compose up -d
 
 ```bash
 # 查看日志
-docker compose logs -f lanqin-email
+docker compose logs -f eoos-email
 
 # 更新镜像并重启
 docker compose pull
@@ -130,8 +130,8 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 ## 首次部署清单
 
-1. 编辑 `deploy/.env`：至少修改 `LANQIN_PUBLIC_HOSTNAME`、`LANQIN_PUBLIC_BASE_URL`、`LANQIN_ADMIN_EMAIL`、`LANQIN_ADMIN_PASSWORD`。
-2. 生产环境建议挂载真实 TLS 证书，并设置 `LANQIN_TLS_CERT_FILE` / `LANQIN_TLS_KEY_FILE`。
+1. 编辑 `deploy/.env`：至少修改 `EOOS_PUBLIC_HOSTNAME`、`EOOS_PUBLIC_BASE_URL`、`EOOS_ADMIN_EMAIL`、`EOOS_ADMIN_PASSWORD`。
+2. 生产环境建议挂载真实 TLS 证书，并设置 `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`。
 3. 登录管理后台，添加邮件域名。
 4. 在域名管理中复制并配置 MX、SPF、DKIM、DMARC 记录，然后点击 DNS 检测。
 5. 创建邮箱账号、别名转发或权限组，按需开启注册、2FA、Turnstile、自助申请邮箱。
@@ -143,32 +143,32 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 | 变量 | 说明 | 默认/示例 |
 |------|------|-----------|
-| `LANQIN_IMAGE` | all-in-one 镜像 | `ghcr.io/lanqin996/lanqin-email:latest` |
-| `LANQIN_PUBLIC_HOSTNAME` | 邮件服务器主机名，影响 Postfix/DNS 展示/链接 | `mail.example.com` |
-| `LANQIN_PUBLIC_BASE_URL` | Webmail 对外访问地址 | `https://mail.example.com` |
-| `LANQIN_ADMIN_EMAIL` | 初始管理员邮箱 | `admin@example.com` |
-| `LANQIN_ADMIN_PASSWORD` | 初始管理员密码，生产必须修改 | `ChangeMe123!` |
-| `LANQIN_DB_PATH` | SQLite 数据库路径 | `/data/lanqin.db` |
-| `LANQIN_ALLOW_INSECURE_HTTP` | 是否允许非 HTTPS Cookie，本地调试可开 | `false` |
-| `LANQIN_OPEN_REGISTRATION` | 是否开放注册 | `false` |
-| `LANQIN_TWO_FACTOR_ENABLED` | 2FA 功能总开关 | `false` |
-| `LANQIN_TURNSTILE_ENABLED` | 是否启用 Turnstile | `false` |
-| `LANQIN_SMTP_HOST` / `LANQIN_SMTP_PORT` | Webmail 发信 SMTP | `127.0.0.1` / `25` |
-| `LANQIN_MAILDIR_ROOT` | Maildir 根目录 | `/var/mail/vhosts` |
-| `LANQIN_CATCH_ALL_ENABLED` | 未注册收件地址是否进入全部邮件 | `false` |
-| `LANQIN_USER_MAILBOX_APPLY_ENABLED` | 是否允许用户自助申请邮箱 | `false` |
-| `LANQIN_EXTERNAL_IMAP_ENABLED` | 是否启用外部 IMAP 接入；也可在后台“系统设置 > 外部 IMAP”配置 | `false` |
-| `LANQIN_EXTERNAL_IMAP_SECRET_KEY` | 外部 IMAP 密码加密密钥，启用接入前必须设置；也可在后台配置 | 随机长字符串 |
-| `LANQIN_EXTERNAL_IMAP_SYNC_SECONDS` | 外部 IMAP 本地存储模式同步间隔；也可在后台配置 | `300` |
-| `LANQIN_EXTERNAL_IMAP_ALLOW_PRIVATE_HOSTS` | 是否允许外部 IMAP 连接内网/localhost 主机；也可在后台配置 | `false` |
-| `LANQIN_EXTERNAL_IMAP_GMAIL_CLIENT_ID` / `LANQIN_EXTERNAL_IMAP_GMAIL_CLIENT_SECRET` | Gmail 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/gmail/callback` | 空 |
-| `LANQIN_EXTERNAL_IMAP_OUTLOOK_CLIENT_ID` / `LANQIN_EXTERNAL_IMAP_OUTLOOK_CLIENT_SECRET` | Microsoft 365 / Outlook 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/outlook/callback` | 空 |
+| `EOOS_IMAGE` | all-in-one 镜像 | `ghcr.io/eoos996/eoos-email:latest` |
+| `EOOS_PUBLIC_HOSTNAME` | 邮件服务器主机名，影响 Postfix/DNS 展示/链接 | `mail.example.com` |
+| `EOOS_PUBLIC_BASE_URL` | Webmail 对外访问地址 | `https://mail.example.com` |
+| `EOOS_ADMIN_EMAIL` | 初始管理员邮箱 | `admin@example.com` |
+| `EOOS_ADMIN_PASSWORD` | 初始管理员密码，生产必须修改 | `ChangeMe123!` |
+| `EOOS_DB_PATH` | SQLite 数据库路径 | `/data/eoos.db` |
+| `EOOS_ALLOW_INSECURE_HTTP` | 是否允许非 HTTPS Cookie，本地调试可开 | `false` |
+| `EOOS_OPEN_REGISTRATION` | 是否开放注册 | `false` |
+| `EOOS_TWO_FACTOR_ENABLED` | 2FA 功能总开关 | `false` |
+| `EOOS_TURNSTILE_ENABLED` | 是否启用 Turnstile | `false` |
+| `EOOS_SMTP_HOST` / `EOOS_SMTP_PORT` | Webmail 发信 SMTP | `127.0.0.1` / `25` |
+| `EOOS_MAILDIR_ROOT` | Maildir 根目录 | `/var/mail/vhosts` |
+| `EOOS_CATCH_ALL_ENABLED` | 未注册收件地址是否进入全部邮件 | `false` |
+| `EOOS_USER_MAILBOX_APPLY_ENABLED` | 是否允许用户自助申请邮箱 | `false` |
+| `EOOS_EXTERNAL_IMAP_ENABLED` | 是否启用外部 IMAP 接入；也可在后台“系统设置 > 外部 IMAP”配置 | `false` |
+| `EOOS_EXTERNAL_IMAP_SECRET_KEY` | 外部 IMAP 密码加密密钥，启用接入前必须设置；也可在后台配置 | 随机长字符串 |
+| `EOOS_EXTERNAL_IMAP_SYNC_SECONDS` | 外部 IMAP 本地存储模式同步间隔；也可在后台配置 | `300` |
+| `EOOS_EXTERNAL_IMAP_ALLOW_PRIVATE_HOSTS` | 是否允许外部 IMAP 连接内网/localhost 主机；也可在后台配置 | `false` |
+| `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_GMAIL_CLIENT_SECRET` | Gmail 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/gmail/callback` | 空 |
+| `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_ID` / `EOOS_EXTERNAL_IMAP_OUTLOOK_CLIENT_SECRET` | Microsoft 365 / Outlook 外部 IMAP OAuth2，回调为 `/api/external-imap-oauth/outlook/callback` | 空 |
 
 ## 架构
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│                    lanqin-email 单容器                     │
+│                    eoos-email 单容器                     │
 │                                                            │
 │  ┌─────────┐       ┌────────────┐       ┌──────────────┐   │
 │  │  Nginx  │ ───▶  │ Go API     │ ───▶  │ SQLite /data │   │
@@ -186,8 +186,8 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 1. **收件**：Postfix 接收邮件 → Rspamd 评分/标记 → Dovecot 写入 Maildir → API worker 同步到 SQLite → Webmail 展示。
 2. **发件**：Webmail 调用 API → API 构造 MIME → SMTP 提交给 Postfix 或外部 SMTP → 投递到目标地址。
-3. **本地投递**：开发环境中，系统内邮箱互发可直接写入对方 Inbox；未配置 `LANQIN_SMTP_HOST` 时不会真正投递外部收件人。
-4. **第三方客户端**：可通过 SMTP 465/587、IMAP 993、POP3 995 连接；生产环境请配置匹配 `LANQIN_PUBLIC_HOSTNAME` 的证书。
+3. **本地投递**：开发环境中，系统内邮箱互发可直接写入对方 Inbox；未配置 `EOOS_SMTP_HOST` 时不会真正投递外部收件人。
+4. **第三方客户端**：可通过 SMTP 465/587、IMAP 993、POP3 995 连接；生产环境请配置匹配 `EOOS_PUBLIC_HOSTNAME` 的证书。
 5. **外部邮箱接入**：个人邮箱管理可添加外部 IMAP 账号。本地存储模式会同步入库；远端直连模式每次读取远端，不写入本地邮件表。
 
 ## 开放 API
@@ -219,11 +219,11 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 
 ## SMTP 提交
 
-- 第三方客户端的 SMTP 提交 `465/587` 由 LanQin API 进程处理。
-- 启用 SMTP 提交前必须配置 `LANQIN_TLS_CERT_FILE` / `LANQIN_TLS_KEY_FILE`；API 不会用 localhost 自签证书对外提供 465/587。
+- 第三方客户端的 SMTP 提交 `465/587` 由 EOOS API 进程处理。
+- 启用 SMTP 提交前必须配置 `EOOS_TLS_CERT_FILE` / `EOOS_TLS_KEY_FILE`；API 不会用 localhost 自签证书对外提供 465/587。
 - Postfix 只保留 `25` 端口，用于公网入站邮件和内部/外部 relay。
 - Webmail/API 和第三方客户端发信都会先写入 Sent，再进入发送队列。
-- 发送队列由 LanQin API 后台 worker relay 到 `LANQIN_SMTP_HOST:LANQIN_SMTP_PORT`，失败会记录审计并按退避策略重试。
+- 发送队列由 EOOS API 后台 worker relay 到 `EOOS_SMTP_HOST:EOOS_SMTP_PORT`，失败会记录审计并按退避策略重试。
 - v1 支持本人邮箱发信；如需 send-as，可使用启用的别名转发 source 指向本人邮箱，或在数据库中配置 `send_as_grants`。
 - 如果客户端随后又通过 IMAP APPEND 写入自己的 Sent 副本，Maildir 同步会按 Sent 文件夹内的 `Message-ID` 去重。
 
@@ -233,9 +233,9 @@ API 现支持 SQLite、MySQL 8.4 和 PostgreSQL 16，SQLite 仍是默认数据�
 
 外部数据库配置：
 
-- `LANQIN_DB_DRIVER=mysql` 或 `LANQIN_DB_DRIVER=postgres`
-- `LANQIN_DATABASE_URL`：MySQL DSN 或 PostgreSQL URL
-- 可通过 `LANQIN_DB_MAX_OPEN_CONNS`、`LANQIN_DB_MAX_IDLE_CONNS` 等变量调整连接池
+- `EOOS_DB_DRIVER=mysql` 或 `EOOS_DB_DRIVER=postgres`
+- `EOOS_DATABASE_URL`：MySQL DSN 或 PostgreSQL URL
+- 可通过 `EOOS_DB_MAX_OPEN_CONNS`、`EOOS_DB_MAX_IDLE_CONNS` 等变量调整连接池
 
 一体化部署支持 SQLite、MySQL 8.4 和 PostgreSQL 16。SQLite 仍是默认数据库；选择 MySQL/PostgreSQL 时，在基础 `docker-compose.yml` 上叠加对应文件即可。现有 SQLite 数据不会自动迁移，跨库导入应使用单独的数据迁移工具。
 
@@ -250,7 +250,7 @@ docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/doc
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/docker-compose.postgres.yml up -d
 ```
 
-两种外部数据库模式仍只运行一个 `lanqin-email` 主容器，仅额外增加一个数据库容器。具体必填变量见 `deploy/.env.example`。
+两种外部数据库模式仍只运行一个 `eoos-email` 主容器，仅额外增加一个数据库容器。具体必填变量见 `deploy/.env.example`。
 
 ## License
 
@@ -259,11 +259,11 @@ docker compose --env-file deploy/.env -f deploy/docker-compose.yml -f deploy/doc
 
 ## Star 趋势
 
-<a href="https://www.star-history.com/?repos=LanQin996%2FLanQin-Email&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=EOOS996%2FEOOS-Email&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=LanQin996/LanQin-Email&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=EOOS996/EOOS-Email&type=date&legend=top-left" />
  </picture>
 </a>
 

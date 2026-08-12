@@ -51,7 +51,7 @@ const sectionPermissions: Record<Section, PermissionKey[]> = {
   sendAudit: ["admin.messages.view"],
   settings: ["admin.settings.view", "admin.templates.view"],
 }
-const projectRepositoryUrl = "https://github.com/LanQin996/LanQin-Email"
+const projectRepositoryUrl = "https://github.com/EOOS996/EOOS-Email"
 const projectTelegramUrl = "https://t.me/+EhII7MSyi3QwNDQ5"
 const projectTag = import.meta.env.VITE_APP_VERSION || ""
 const projectReleaseUrl = import.meta.env.VITE_RELEASE_URL || (projectTag ? `${projectRepositoryUrl}/releases/tag/${projectTag}` : "")
@@ -1242,7 +1242,7 @@ function SystemSettingsSection({ settings, domains }: { settings?: SystemSetting
               <div className="space-y-3">
                 <div>
                   <div className="font-medium">Gmail OAuth2</div>
-                  <div className="text-xs text-muted-foreground">回调地址：{(settings?.publicBaseUrl || "${LANQIN_PUBLIC_BASE_URL}").replace(/\/$/, "")}/api/external-imap-oauth/gmail/callback</div>
+                  <div className="text-xs text-muted-foreground">回调地址：{(settings?.publicBaseUrl || "${EOOS_PUBLIC_BASE_URL}").replace(/\/$/, "")}/api/external-imap-oauth/gmail/callback</div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field name="externalImapGmailClientId" label="Gmail Client ID" defaultValue={settings?.externalImapGmailClientId || ""} required={false} />
@@ -1253,7 +1253,7 @@ function SystemSettingsSection({ settings, domains }: { settings?: SystemSetting
               <div className="space-y-3">
                 <div>
                   <div className="font-medium">Microsoft 365 / Outlook OAuth2</div>
-                  <div className="text-xs text-muted-foreground">回调地址：{(settings?.publicBaseUrl || "${LANQIN_PUBLIC_BASE_URL}").replace(/\/$/, "")}/api/external-imap-oauth/outlook/callback</div>
+                  <div className="text-xs text-muted-foreground">回调地址：{(settings?.publicBaseUrl || "${EOOS_PUBLIC_BASE_URL}").replace(/\/$/, "")}/api/external-imap-oauth/outlook/callback</div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field name="externalImapOutlookClientId" label="Outlook Client ID" defaultValue={settings?.externalImapOutlookClientId || ""} required={false} />
@@ -1411,7 +1411,7 @@ function AboutProjectCard() {
   const latestRelease = useQuery({
     queryKey: ["github", "latest-release"],
     queryFn: async () => {
-      const res = await fetch("https://api.github.com/repos/LanQin996/LanQin-Email/releases/latest")
+      const res = await fetch("https://api.github.com/repos/EOOS996/EOOS-Email/releases/latest")
       if (!res.ok) throw new Error("rate limited or unavailable")
       return res.json() as Promise<{ tag_name: string; html_url: string }>
     },
