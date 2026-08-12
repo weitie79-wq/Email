@@ -55,12 +55,12 @@ docker compose down
 默认镜像：
 
 ```text
-ghcr.io/eoos996/eoos-email:latest
-ghcr.io/eoos996/eoos-email-api:latest
-ghcr.io/eoos996/eoos-email-web:latest
-ghcr.io/eoos996/eoos-email-postfix:latest
-ghcr.io/eoos996/eoos-email-dovecot:latest
-ghcr.io/eoos996/eoos-email-rspamd:latest
+ghcr.io/weitie79-wq/eoos-email:latest
+ghcr.io/weitie79-wq/eoos-email-api:latest
+ghcr.io/weitie79-wq/eoos-email-web:latest
+ghcr.io/weitie79-wq/eoos-email-postfix:latest
+ghcr.io/weitie79-wq/eoos-email-dovecot:latest
+ghcr.io/weitie79-wq/eoos-email-rspamd:latest
 ```
 
 如果拉取时报：

@@ -216,12 +216,12 @@ pkill -f "go run ./cmd/server" && source deploy/.env && go run ./cmd/server
 
 | 组件 | 镜像 | 端口 |
 |------|------|------|
-| All-in-one | `ghcr.io/eoos996/eoos-email:latest` | 80, 443, 25, 465, 587, 993, 995 |
-| API | `ghcr.io/eoos996/eoos-email-api:latest` | 8080 |
-| Web | `ghcr.io/eoos996/eoos-email-web:latest` | 5173 |
-| Postfix | `ghcr.io/eoos996/eoos-email-postfix:latest` | 25 |
-| Dovecot | `ghcr.io/eoos996/eoos-email-dovecot:latest` | 993, 995 |
-| Rspamd | `ghcr.io/eoos996/eoos-email-rspamd:latest` | 11332 |
+| All-in-one | `ghcr.io/weitie79-wq/eoos-email:latest` | 80, 443, 25, 465, 587, 993, 995 |
+| API | `ghcr.io/weitie79-wq/eoos-email-api:latest` | 8080 |
+| Web | `ghcr.io/weitie79-wq/eoos-email-web:latest` | 5173 |
+| Postfix | `ghcr.io/weitie79-wq/eoos-email-postfix:latest` | 25 |
+| Dovecot | `ghcr.io/weitie79-wq/eoos-email-dovecot:latest` | 993, 995 |
+| Rspamd | `ghcr.io/weitie79-wq/eoos-email-rspamd:latest` | 11332 |
 
 ---
 

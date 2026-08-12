@@ -1,6 +1,6 @@
 services:
   eoos-email:
-    image: ${EOOS_IMAGE:-ghcr.io/eoos996/eoos-email:latest}
+    image: ${EOOS_IMAGE:-ghcr.io/weitie79-wq/eoos-email:latest}
     env_file: .env
     ports:
       - "80:80"
