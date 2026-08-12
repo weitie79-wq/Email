@@ -62,6 +62,11 @@ type Config struct {
 	StatusWebhookURL                string
 	StatusWebhookSecret             string
 	StatusWebhookAllowPrivateHosts  bool
+	TelegramBotToken                string
+	TelegramBotTimeoutSeconds       int
+	TelegramAdminChatIDs            string
+	TelegramNotifyEnabled           bool
+	TelegramAlertQueueThreshold     int
 }
 
 func LoadConfig() Config {
@@ -122,6 +127,11 @@ func LoadConfig() Config {
 		StatusWebhookURL:                getenv("EOOS_STATUS_WEBHOOK_URL", ""),
 		StatusWebhookSecret:             getenv("EOOS_STATUS_WEBHOOK_SECRET", ""),
 		StatusWebhookAllowPrivateHosts:  getenvBool("EOOS_STATUS_WEBHOOK_ALLOW_PRIVATE_HOSTS", false),
+		TelegramBotToken:                getenv("EOOS_TELEGRAM_BOT_TOKEN", ""),
+		TelegramBotTimeoutSeconds:       getenvInt("EOOS_TELEGRAM_BOT_TIMEOUT_SECONDS", 60),
+		TelegramAdminChatIDs:            getenv("EOOS_TELEGRAM_ADMIN_CHAT_IDS", ""),
+		TelegramNotifyEnabled:           getenvBool("EOOS_TELEGRAM_NOTIFY_ENABLED", true),
+		TelegramAlertQueueThreshold:     getenvInt("EOOS_TELEGRAM_ALERT_QUEUE_THRESHOLD", 200),
 	}
 }
 

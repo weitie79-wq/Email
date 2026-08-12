@@ -495,5 +495,61 @@ func postgresFreshSchema() []string {
 			PRIMARY KEY(message_id,label_id)
 		)`,
 		`CREATE INDEX idx_message_labels_label ON message_labels(label_id,message_id)`,
+		`CREATE TABLE telegram_bindings (
+			chat_id BIGINT PRIMARY KEY,
+			user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			is_admin_target INTEGER NOT NULL DEFAULT 0,
+			created_at VARCHAR(35) NOT NULL,
+			updated_at VARCHAR(35) NOT NULL,
+			UNIQUE(user_id)
+		)`,
+		`CREATE TABLE telegram_binding_codes (
+			code VARCHAR(64) PRIMARY KEY,
+			user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			chat_id BIGINT NOT NULL,
+			expires_at VARCHAR(35) NOT NULL,
+			used_at VARCHAR(35) NOT NULL DEFAULT ''
+		)`,
+		`CREATE INDEX idx_telegram_binding_codes_user ON telegram_binding_codes(user_id)`,
+		`CREATE TABLE telegram_notify_outbox (
+			id VARCHAR(64) PRIMARY KEY,
+			mailbox_id VARCHAR(64) NOT NULL REFERENCES mailboxes(id) ON DELETE CASCADE,
+			user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			message_id VARCHAR(64) NOT NULL,
+			chat_id BIGINT NOT NULL,
+			subject TEXT NOT NULL,
+			from_addr VARCHAR(320) NOT NULL,
+			from_name TEXT NOT NULL DEFAULT '',
+			snippet TEXT NOT NULL DEFAULT '',
+			dedupe_key VARCHAR(255) NOT NULL,
+			attempt_count INTEGER NOT NULL DEFAULT 0,
+			max_attempts INTEGER NOT NULL DEFAULT 5,
+			next_attempt_at VARCHAR(35) NOT NULL,
+			delivered_at VARCHAR(35) NOT NULL DEFAULT '',
+			created_at VARCHAR(35) NOT NULL,
+			UNIQUE(dedupe_key)
+		)`,
+		`CREATE INDEX idx_telegram_notify_outbox_due ON telegram_notify_outbox(delivered_at,next_attempt_at,created_at)`,
+		`CREATE TABLE telegram_mailbox_settings (
+			mailbox_id VARCHAR(64) PRIMARY KEY,
+			notify_enabled INTEGER NOT NULL DEFAULT 1,
+			notify_spam INTEGER NOT NULL DEFAULT 0,
+			updated_at VARCHAR(35) NOT NULL
+		)`,
+		`CREATE TABLE telegram_alert_outbox (
+			id VARCHAR(64) PRIMARY KEY,
+			alert_type VARCHAR(64) NOT NULL,
+			chat_id BIGINT NOT NULL,
+			title TEXT NOT NULL,
+			body TEXT NOT NULL DEFAULT '',
+			dedupe_key VARCHAR(255) NOT NULL,
+			attempt_count INTEGER NOT NULL DEFAULT 0,
+			max_attempts INTEGER NOT NULL DEFAULT 5,
+			next_attempt_at VARCHAR(35) NOT NULL,
+			delivered_at VARCHAR(35) NOT NULL DEFAULT '',
+			created_at VARCHAR(35) NOT NULL,
+			UNIQUE(dedupe_key)
+		)`,
+		`CREATE INDEX idx_telegram_alert_outbox_due ON telegram_alert_outbox(delivered_at,next_attempt_at,created_at)`,
 	}
 }

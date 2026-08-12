@@ -633,6 +633,61 @@ func (a *App) migrate(ctx context.Context) error {
 		`CREATE INDEX IF NOT EXISTS idx_blocked_senders_user_mailbox ON blocked_senders(user_id, mailbox_id, email)`,
 		`CREATE INDEX IF NOT EXISTS idx_mail_labels_mailbox ON mail_labels(mailbox_id, name)`,
 		`CREATE INDEX IF NOT EXISTS idx_message_labels_label ON message_labels(label_id, message_id)`,
+		`CREATE TABLE IF NOT EXISTS telegram_bindings (
+			chat_id INTEGER PRIMARY KEY,
+			user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			is_admin_target INTEGER NOT NULL DEFAULT 0,
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			UNIQUE(user_id)
+		)`,
+		`CREATE TABLE IF NOT EXISTS telegram_binding_codes (
+			code TEXT PRIMARY KEY,
+			user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			chat_id INTEGER NOT NULL,
+			expires_at TEXT NOT NULL,
+			used_at TEXT DEFAULT ''
+		)`,
+		`CREATE TABLE IF NOT EXISTS telegram_notify_outbox (
+			id TEXT PRIMARY KEY,
+			mailbox_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			message_id TEXT NOT NULL,
+			chat_id INTEGER NOT NULL,
+			subject TEXT NOT NULL,
+			from_addr TEXT NOT NULL,
+			from_name TEXT NOT NULL DEFAULT '',
+			snippet TEXT NOT NULL DEFAULT '',
+			dedupe_key TEXT NOT NULL,
+			attempt_count INTEGER NOT NULL DEFAULT 0,
+			max_attempts INTEGER NOT NULL DEFAULT 5,
+			next_attempt_at TEXT NOT NULL,
+			delivered_at TEXT DEFAULT '',
+			created_at TEXT NOT NULL,
+			UNIQUE(dedupe_key)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_telegram_notify_outbox_due ON telegram_notify_outbox(delivered_at,next_attempt_at,created_at)`,
+		`CREATE TABLE IF NOT EXISTS telegram_mailbox_settings (
+			mailbox_id TEXT PRIMARY KEY,
+			notify_enabled INTEGER NOT NULL DEFAULT 1,
+			notify_spam INTEGER NOT NULL DEFAULT 0,
+			updated_at TEXT NOT NULL
+		)`,
+		`CREATE TABLE IF NOT EXISTS telegram_alert_outbox (
+			id TEXT PRIMARY KEY,
+			alert_type TEXT NOT NULL,
+			chat_id INTEGER NOT NULL,
+			title TEXT NOT NULL,
+			body TEXT NOT NULL DEFAULT '',
+			dedupe_key TEXT NOT NULL,
+			attempt_count INTEGER NOT NULL DEFAULT 0,
+			max_attempts INTEGER NOT NULL DEFAULT 5,
+			next_attempt_at TEXT NOT NULL,
+			delivered_at TEXT DEFAULT '',
+			created_at TEXT NOT NULL,
+			UNIQUE(dedupe_key)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_telegram_alert_outbox_due ON telegram_alert_outbox(delivered_at,next_attempt_at,created_at)`,
 	}
 	for _, stmt := range stmts {
 		if _, err := a.db.ExecContext(ctx, stmt); err != nil {
